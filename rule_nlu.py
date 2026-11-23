@@ -2,7 +2,7 @@ import re
 
 from schemas import NluResult
 
-MODEL_VERSION = "synthetic-rule-zh-hant-v1"
+MODEL_VERSION = "synthetic-rule-zh-hant-v2"
 _FREQUENCIES = ("完全沒有", "有幾天", "超過一半的日子", "幾乎每天")
 _WINDOW = re.compile(r"^(過去兩週|過去兩星期|過去14天)\s*[，,：:]?\s*")
 
@@ -34,8 +34,10 @@ def extract(item_id: int, text: str) -> NluResult:
     if "有時" in answer:
         out["ambiguity"] = "ambiguous_frequency"
         return out
-    if answer.startswith(("並非", "不是", "不確定")):
+    if answer.startswith(("並非", "不是")):
         out["negation"] = "unclear"
+        return out
+    if answer.startswith("不確定"):
         return out
     value = next(
         (

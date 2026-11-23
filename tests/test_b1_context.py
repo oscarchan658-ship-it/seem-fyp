@@ -67,3 +67,18 @@ def test_c08_evidence_reason_does_not_accept_high_confidence_conflict(changes, r
     candidate = extract(1, "過去兩週有幾天") | changes
     result = evaluate_candidate(candidate, expected_item=1)
     assert result.value is None and result.reason == reason
+
+
+@pytest.mark.parametrize(
+    ("text", "reason"),
+    [
+        ("過去兩週不是有幾天", "negation_unclear"),
+        ("過去兩週不確定", "uncertain"),
+        ("過去兩週完全沒有，但也說幾乎每天", "contradiction"),
+    ],
+)
+def test_c08_default_provider_distinguishes_real_clarification_reasons(text, reason):
+    state = send(send(new_session(), "START").state, "ACCEPT").state
+    out = send(state, "TEXT", item_id=1, text=text)
+    assert out.evidence_reason == reason and out.state.item_id == 1
+    assert not out.state.provisional_answers and out.state.result is None

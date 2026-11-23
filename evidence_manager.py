@@ -13,10 +13,12 @@ class CandidateDecision:
 def assess_candidate(result: NluResult) -> CandidateDecision:
     if result["timeframe"] != "past_14_days":
         return CandidateDecision(None, "timeframe_unverified")
-    if result["ambiguity"] != "none":
-        return CandidateDecision(None, result["ambiguity"])
+    if result["ambiguity"] == "contradiction":
+        return CandidateDecision(None, "contradiction")
     if result["negation"] == "unclear":
         return CandidateDecision(None, "negation_unclear")
+    if result["ambiguity"] != "none":
+        return CandidateDecision(None, result["ambiguity"])
     value = result["frequency_candidate"]
     if value is None:
         return CandidateDecision(None, "frequency_missing")
