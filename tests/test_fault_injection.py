@@ -19,7 +19,7 @@ def test_c23_c27_timeout_during_edit_and_guard_failure_during_retry():
         state = dispatch(state, event(kind, **fields)).state
     text = event("TEXT", item_id=1, text="synthetic timeout fixture")
     provider = Mock(side_effect=TimeoutError)
-    unavailable = dispatch(state, text, nlu=provider)
+    unavailable = dispatch(state, text, nlu=Mock(predict=provider))
     state = unavailable.state
     assert unavailable.response_code == "nlu_unavailable"
     assert state.phase == "EDIT_ANSWER" and state.provisional_answers == {1: 0}
@@ -27,7 +27,7 @@ def test_c23_c27_timeout_during_edit_and_guard_failure_during_retry():
     provider.reset_mock()
 
     interrupted = dispatch(
-        state, text, nlu=provider, guard=Mock(side_effect=TimeoutError)
+        state, text, nlu=Mock(predict=provider), guard=Mock(side_effect=TimeoutError)
     )
     state = interrupted.state
     assert (

@@ -45,7 +45,9 @@ flowchart LR
 | `safety_guard.py`（WP04） | `check_safety(text: str) -> SafetyDecision` | 第一版為有版本的合成替身，回傳 `normal / review / interrupt`。回傳值非法或呼叫失敗，由 Controller 以 Guard 故障處理。轉移碼分別為 `safety_review / safety_interrupt / safety_unavailable`，由 UI 選取固定測試回應，避免回顯文字。 |
 | `controller.py`（WP04） | `new_session() -> SessionState`、`dispatch(state: SessionState, event: Event) -> Transition` | 單一轉移入口，外部 Guard 與 NLU 可用替身注入。先驗證會話 ID；同會話活動狀態的文字先執行 Guard（優先於版本、題號與一般處理）；再驗證版本、事件與題號，最後處理狀態。回傳新快照、畫面回應碼與不含文字的轉移摘要。非法事件保留原狀，回傳拒絕碼。 |
 | `rule_nlu.py`（WP05） | `extract(item_id: int, text: str) -> NluResult` | 只解析指定題目。清楚且符合兩週的頻率可回候選分值。詞彙範圍外、模糊、矛盾、時間缺失時必須拒答。 |
-| Evidence Manager（WP04／05） | `decide_candidate(result: NluResult) -> Decision` | 放在 Controller 的小型純規則。只允許當前題目、對應過去兩週、無衝突且合規的分值成為暫存候選。其他輸出均導向有原因碼的澄清，`confidence_signal` 只作診斷。 |
+| Evidence Manager（C08） | `evaluate_candidate(payload, expected_item) -> CandidateDecision` | 驗證 schema、當前題目、時間、否定與矛盾，回傳可空候選及原因碼。無合規候選便澄清，信心資料沒有覆蓋硬規則的權限。 |
+
+V3.2 接線維持 UI → Controller。Controller 先處理會話及 Guard，再呼叫 `NLUProvider.predict(request)` 和 Evidence Manager。評分引擎只讀八個確認答案。Controller 在澄清期間只保存題號，換題、退出編輯、取消、中斷及重設會清除。天數轉頻率待核定。
 | `app.py`（WP06） | `streamlit run app.py` | 將文字或操作送到 `dispatch`，以 `st.session_state` 保存最新快照，根據狀態呈現 consent、題目、澄清、核對、結果或中斷文案。表單提交才送事件，顯示重跑不重送。畫面不得直接寫入答案、判斷危機或計分。 |
 
 資料型別與 JSON 邊界規格（WP01）
