@@ -26,5 +26,6 @@ Streamlit 預設只監聽本機。問卷狀態留在當前會話的記憶體。�
 - [架構與模組介面](architecture.md)
 - [需求與驗收矩陣](requirements.md)
 - [規則 NLU 合約](nlp_contract.md)
+- [合成原型驗收與截圖](docs/verification/wp01-wp06-synthetic.md)
 
 正式題幹、目標語言、Guard 規則及支援文案須由團隊與相關審閱者核定。原型結果只支持合成情境中的軟體行為驗證。

@@ -2,7 +2,7 @@
 
 專案 **Sentiment Analysis for Depression Detection**。範圍 WP01／03／04／05／06。來源為 Master Plan V3.1（本機原檔 `FYP_Research_and_Implementation_Master_Plan_V3_1.docx`） 與本次使用者約束。模組與資料定義見 [architecture.md](architecture.md)，工作次序見 [實作計劃](docs/superpowers/plans/2026-11-23-fyp-systems-integration.md)。
 
-所有測試均為**預定／未執行**。T01–T24 沿用 V3.1 §V-B 類別及順序。T25 起為新增驗收。測試以虛構輸入、本地規則或明確標記的測試替身執行。
+T01–T24 沿用 V3.1 §V-B 類別及順序。T25 起為新增驗收。測試以虛構輸入、本地規則或明確標記的測試替身執行。實測及待驗收項目見[合成原型驗收紀錄](docs/verification/wp01-wp06-synthetic.md)。
 
 ## 需求追蹤矩陣
 
