@@ -22,7 +22,8 @@
 ```mermaid
 flowchart LR
     UI[Streamlit] -->|事件| C[Controller]
-    C -->|同會話活動狀態的文字，先於版本檢查| G[Safety Guard]\n    C -->|跨會話事件| X[拒絕且不觸發 Guard]
+    C -->|同會話活動狀態的文字，先於版本檢查| G[Safety Guard]
+    C -->|跨會話事件| X[拒絕且不觸發 Guard]
     G -->|review / interrupt / 故障| S[暫停與固定回應]
     G -->|normal| N[一般事件處理]
     C -->|結構化按鈕事件，受狀態與版本限制| N
