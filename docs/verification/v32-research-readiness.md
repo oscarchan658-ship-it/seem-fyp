@@ -21,3 +21,11 @@
 | C06、C11、C12、C17、C19 | [工具命令、資料合約及限制](../../research/README.md) | 本地合成準備。映射、雙人標註與資料凍結、Empirical E1 及完整政策比較尚未驗收 |
 | C23／C27 | `tests/test_fault_injection.py` 與既有 Guard／FSM 測試 | 模擬失效及狀態回退；正式 Guard 仍待審 |
 | C24 | 本文件 FMEA 初稿 | 等候風險分級與殘餘風險人工審查 |
+
+### 已執行的研究工具檢查
+
+2026-11-24（JST），Windows，程式提交 `9d7bd35d4caf94476f40133931c3de14317d6a54`。Python 3.12.14、pytest 9.2.0、Streamlit 1.67.0。依賴、Ruff 與格式檢查通過。全套 pytest **120 passed**，含 **19** 個新增案例，總覆蓋率 **93%**（包括新研究工具）。
+
+- C11／C12 合成 CLI 檢查通過，從兩個獨立 fixture 集合產生 manifest，並輸出 Rule predictions CSV。輸出有已接受及未解決案例，正式 Dataset B 指標未執行。
+- C17 合成 smoke 通過，S、N、F 各使用相同四個 fixture；Empirical E1 明確標記 `NOT RUN`。
+- C19 驗證合成追問及完整八題腳本，正式 P0–P3 政策比較未執行。
