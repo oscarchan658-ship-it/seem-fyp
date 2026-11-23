@@ -62,7 +62,7 @@ T01–T24 沿用 V3.1 §V-B 類別及順序。T25 起為新增驗收。測試以
 | T33 | UI＋人工 demo | 乾淨環境執行 `python -m pytest -q` 和 `streamlit run app.py`。啟動後以合成資料從 consent 走到 result，能編輯並確認。記錄啟動方式、已使用的替身及實際截圖。 |
 | T34 | 驗收紀錄審查 | 每項 FR/NFR 有至少一個案例。執行後逐案留存測試 ID、預期／實際、PASS／FAIL、日期、Git commit、Python／pytest／Streamlit 版本和環境。未跑標未執行。 |
 
-Controller、Schema 和 Guard 案例可隨 WP04／05 分批完成。UI 測試建議以 Streamlit `AppTest` 驗證支援的操作，瀏覽器實際操作補足 widget 重跑、跨會話及截圖證據。若現有 Streamlit 版本或元件不支援該 API，在 repo baseline 確認後再定替代方式。[Streamlit AppTest 官方文件](https://docs.streamlit.io/develop/api-reference/app-testing/st.testing.v1.apptest)
-
 | T35 | `tests/test_rule_nlu.py` | 句尾標點前空白不應令清楚頻率變成模糊；相同標點正規化亦不得接受模糊、缺時間窗及矛盾回覆。 |
 | T36 | `tests/test_controller.py` | 跨會話 TEXT 在 Guard 前拒絕；同會話舊版本 TEXT 先過 Guard 再驗版本；結構化 SELECT 不呼叫文字 Guard。 |
+
+Controller、Schema 和 Guard 案例可隨 WP04／05 分批完成。UI 測試建議以 Streamlit `AppTest` 驗證支援的操作，瀏覽器實際操作補足 widget 重跑、跨會話及截圖證據。若現有 Streamlit 版本或元件不支援該 API，在 repo baseline 確認後再定替代方式。[Streamlit AppTest 官方文件](https://docs.streamlit.io/develop/api-reference/app-testing/st.testing.v1.apptest)
