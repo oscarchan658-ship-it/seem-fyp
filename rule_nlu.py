@@ -11,7 +11,9 @@ def extract(item_id: int, text: str) -> NluResult:
     """Parse the small set of synthetic replies scoped to the current item."""
     text = text.strip().rstrip("。.!！").rstrip()
     window = _WINDOW.match(text)
-    timeframe = "past_14_days" if window else "other" if text.startswith("上週") else "missing"
+    timeframe = (
+        "past_14_days" if window else "other" if text.startswith("上週") else "missing"
+    )
     out: NluResult = {
         "item_id": item_id,
         "frequency_candidate": None,
@@ -24,7 +26,7 @@ def extract(item_id: int, text: str) -> NluResult:
     if not window:
         return out
 
-    answer = text[window.end():]
+    answer = text[window.end() :]
     mentions = [frequency for frequency in _FREQUENCIES if frequency in answer]
     if len(mentions) > 1:
         out["ambiguity"] = "contradiction"
@@ -35,10 +37,15 @@ def extract(item_id: int, text: str) -> NluResult:
     if answer.startswith(("並非", "不是", "不確定")):
         out["negation"] = "unclear"
         return out
-    value = next((
-        index for index, frequency in enumerate(_FREQUENCIES)
-        if answer in (frequency, frequency + ("此症狀" if index == 0 else "出現此症狀"))
-    ), None)
+    value = next(
+        (
+            index
+            for index, frequency in enumerate(_FREQUENCIES)
+            if answer
+            in (frequency, frequency + ("此症狀" if index == 0 else "出現此症狀"))
+        ),
+        None,
+    )
     if value is None:
         out["ambiguity"] = "off_topic"
         return out

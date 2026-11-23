@@ -33,8 +33,15 @@ def send(event: Event):
 def submit_text(event: Event, text_key: str):
     text = st.session_state.pop(text_key, None)
     if isinstance(text, str):
-        send(Event(event.kind, event.session_id, event.expected_revision,
-                   item_id=event.item_id, text=text))
+        send(
+            Event(
+                event.kind,
+                event.session_id,
+                event.expected_revision,
+                item_id=event.item_id,
+                text=text,
+            )
+        )
 
 
 def queue_action(event: Event):
@@ -58,8 +65,13 @@ scope = f"{state.session_id}-{state.revision}"
 
 def action(label, kind, *, item_id=None, value=None, primary=False):
     event = Event(kind, state.session_id, state.revision, item_id=item_id, value=value)
-    st.button(label, key=f"{scope}-{kind}-{item_id}-{value}", on_click=queue_action, args=(event,),
-              type="primary" if primary else "secondary")
+    st.button(
+        label,
+        key=f"{scope}-{kind}-{item_id}-{value}",
+        on_click=queue_action,
+        args=(event,),
+        type="primary" if primary else "secondary",
+    )
 
 
 st.title(TITLE)
@@ -123,5 +135,10 @@ if phase not in ("END", "RESULT", "SAFETY_FLOW"):
         st.caption("合成文字範例：過去兩週有幾天。")
     text_key = f"{scope}-TEXT"
     text_event = Event("TEXT", state.session_id, state.revision, item_id=state.item_id)
-    st.chat_input("輸入虛構文字", key=text_key, max_chars=500, on_submit=submit_text,
-                  args=(text_event, text_key))
+    st.chat_input(
+        "輸入虛構文字",
+        key=text_key,
+        max_chars=500,
+        on_submit=submit_text,
+        args=(text_event, text_key),
+    )

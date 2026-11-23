@@ -4,7 +4,9 @@ from phq8_engine import ConfirmedAnswer, Phq8Result, score_phq8
 
 
 def confirmed_answers(values):
-    return tuple(ConfirmedAnswer(item_id, value) for item_id, value in enumerate(values, 1))
+    return tuple(
+        ConfirmedAnswer(item_id, value) for item_id, value in enumerate(values, 1)
+    )
 
 
 @pytest.mark.parametrize(

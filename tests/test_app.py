@@ -8,7 +8,9 @@ APP = Path(__file__).resolve().parents[1] / "app.py"
 
 
 def click(app, label):
-    app.button(next(button.key for button in app.button if button.label == label)).click().run()
+    app.button(
+        next(button.key for button in app.button if button.label == label)
+    ).click().run()
     assert not app.exception
     return app
 
@@ -58,10 +60,13 @@ def test_t08_t32_private_state_and_clear():
     assert left.session_state["dialogue"].session_id != initial_id
 
 
-@pytest.mark.parametrize(("text", "expected"), [
-    ("[DEMO_INTERRUPT]", "模擬中斷"),
-    ("[DEMO_REVIEW]", "模擬覆核"),
-])
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("[DEMO_INTERRUPT]", "模擬中斷"),
+        ("[DEMO_REVIEW]", "模擬覆核"),
+    ],
+)
 def test_t23_t29_t31_safety_mock_stops_form_and_clear_input(text, expected):
     app = screening()
     click(app, "完全沒有")
@@ -79,8 +84,9 @@ def test_t24_invalid_nlu_gives_selection_fallback(monkeypatch):
 
     dispatch = controller.dispatch
     broken = Mock(return_value={})
-    monkeypatch.setattr(controller, "dispatch",
-                        lambda state, event: dispatch(state, event, nlu=broken))
+    monkeypatch.setattr(
+        controller, "dispatch", lambda state, event: dispatch(state, event, nlu=broken)
+    )
     app = screening()
     app.chat_input[0].set_value("synthetic").run()
     assert not app.exception and "暫時無法解讀" in app.info[0].value
@@ -98,7 +104,9 @@ def test_t23_coalesced_confirm_cannot_precede_safety_text(monkeypatch):
         click(app, "完全沒有")
     scorer = Mock(side_effect=AssertionError("Safety must run before scoring."))
     monkeypatch.setattr("controller.score_phq8", scorer)
-    next(button for button in app.button if button.label == "確認八題答案並計分").click()
+    next(
+        button for button in app.button if button.label == "確認八題答案並計分"
+    ).click()
     app.chat_input[0].set_value("[DEMO_INTERRUPT]")
     app.run()
     scorer.assert_not_called()
@@ -107,13 +115,16 @@ def test_t23_coalesced_confirm_cannot_precede_safety_text(monkeypatch):
     assert not app.metric
 
 
-@pytest.mark.parametrize("guard", [Mock(return_value=[]), Mock(side_effect=RuntimeError)])
+@pytest.mark.parametrize(
+    "guard", [Mock(return_value=[]), Mock(side_effect=RuntimeError)]
+)
 def test_t29_guard_failure_shows_fixed_message(monkeypatch, guard):
     import controller
 
     dispatch = controller.dispatch
-    monkeypatch.setattr(controller, "dispatch",
-                        lambda state, event: dispatch(state, event, guard=guard))
+    monkeypatch.setattr(
+        controller, "dispatch", lambda state, event: dispatch(state, event, guard=guard)
+    )
     app = screening()
     app.chat_input[0].set_value("synthetic").run()
     assert not app.exception
