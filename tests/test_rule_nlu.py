@@ -71,3 +71,25 @@ def test_t27_requires_all_mandatory_keys():
     del result["timeframe"]
     with pytest.raises(ValueError):
         validate_nlu(result, 1)
+
+
+@pytest.mark.parametrize(("text", "value"), [
+    ("過去兩週有幾天 。", 1),
+    ("過去兩週有幾天  。  ", 1),
+    ("過去兩週幾乎每天 ！", 3),
+    ("過去兩週完全沒有此症狀 。", 0),
+])
+def test_t35_space_before_final_punctuation_preserves_clear_frequency(text, value):
+    result = validate_nlu(extract(1, text), 1)
+    assert decide_candidate(result) == value
+
+
+@pytest.mark.parametrize(("text", "ambiguity"), [
+    ("過去兩週有時 。", "ambiguous_frequency"),
+    ("有幾天 。", "uncertain"),
+    ("過去兩週完全沒有，但也說幾乎每天 。", "contradiction"),
+])
+def test_t35_punctuation_normalisation_does_not_bypass_abstention(text, ambiguity):
+    result = validate_nlu(extract(1, text), 1)
+    assert result["ambiguity"] == ambiguity
+    assert decide_candidate(result) is None

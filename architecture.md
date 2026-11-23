@@ -6,7 +6,7 @@
 
 | 發現與依據 | 風險與設計決定 |
 |---|---|
-| §IV-B 要求 Safety Guard 優先。圖 1 從 FSM 分叉到 Guard 和 NLU，未畫出阻斷條件。 | Controller 在每個收到自由文字的活動狀態先呼叫 Guard，取得 `normal` 才進入一般事件處理、NLU 或評分。即使文字與題目無關或事件已過期，仍先檢查。 |
+| §IV-B 要求 Safety Guard 優先。圖 1 從 FSM 分叉到 Guard 和 NLU，未畫出阻斷條件。 | Controller 先拒絕 `session_id` 不符合當前會話的事件，避免跨會話文字觸發中斷；對**同會話**的活動狀態自由文字，再優先呼叫 Guard，取得 `normal` 才檢查版本、題號並進入 NLU 或一般事件處理。即使同會話文字與題目無關或版本已過期，仍先檢查 Guard。 |
 | 圖 1 把 sentiment 接入 Evidence Manager，但 §IV-B/C 只允許研究特徵及可選輔助。 | 本期移出對話依賴鏈。證據判定只讀結構化症狀候選及當前題目。Sentiment 可以缺席、失效或變更而不影響任何答案或分數。 |
 | WP01 寫「七大狀態」，圖 2 有八個框，§IV-C 另有 `END`。圖示把澄清畫成必經路徑，且編輯只畫回 `SCREENING`。表中同時使用 `REVIEW` 與 `BATCH_REVIEW`。 | 提案採九個明確狀態。澄清為條件路徑，編輯返回原狀態，統一 `BATCH_REVIEW` 命名。若需保留七個狀態，須更新建模與驗收規格。 |
 | §IV-C 未定義確認快照、過期事件、編輯撤銷、重複事件及結果後操作。 | 控制器擁有狀態與單調遞增的版本。確認綁定畫面版本與暫存集合。結果頁停止接受問卷文字與編輯，重做從新會話開始。 |
@@ -22,7 +22,8 @@
 ```mermaid
 flowchart LR
     UI[Streamlit] -->|事件| C[Controller]
-    C -->|所有活動狀態的文字，先檢查| G[Safety Guard]
+    C -->|同會話活動狀態的文字，先於版本檢查| G[Safety Guard]
+    C -->|跨會話事件| X[拒絕且不觸發 Guard]
     G -->|review / interrupt / 故障| S[暫停與固定回應]
     G -->|normal| N[一般事件處理]
     C -->|結構化按鈕事件，受狀態與版本限制| N
@@ -42,7 +43,7 @@ flowchart LR
 | `schemas.py`（WP01） | `validate_nlu(payload: Mapping[str, object], expected_item: int) -> NluResult` | 共用型別如下。非法結構或錯題拋 `ValueError`，控制器轉結構化選項回退。反序列化與評分邊界均需驗證。 |
 | `phq8_engine.py`（WP03） | `score_phq8(confirmed: Sequence[ConfirmedAnswer]) -> Phq8Result` | 純函式。要求恰好八個唯一且完整的題號 1–8，分值為 0–3 的嚴格整數。缺漏、重複、額外題、未確認型別或非法值均拋 `ValueError`，無部分結果。 |
 | `safety_guard.py`（WP04） | `check_safety(text: str) -> SafetyDecision` | 第一版為有版本的合成替身，回傳 `normal / review / interrupt`。回傳值非法或呼叫失敗，由 Controller 以 Guard 故障處理。轉移碼分別為 `safety_review / safety_interrupt / safety_unavailable`，由 UI 選取固定測試回應，避免回顯文字。 |
-| `controller.py`（WP04） | `new_session() -> SessionState`、`dispatch(state: SessionState, event: Event) -> Transition` | 單一轉移入口，外部 Guard 與 NLU 可用替身注入。先處理安全，再驗證會話、版本、事件與題號，最後處理狀態。回傳新快照、畫面回應碼與不含文字的轉移摘要。非法事件保留原狀，回傳拒絕碼。 |
+| `controller.py`（WP04） | `new_session() -> SessionState`、`dispatch(state: SessionState, event: Event) -> Transition` | 單一轉移入口，外部 Guard 與 NLU 可用替身注入。先驗證會話 ID；同會話活動狀態的文字先執行 Guard（優先於版本、題號與一般處理）；再驗證版本、事件與題號，最後處理狀態。回傳新快照、畫面回應碼與不含文字的轉移摘要。非法事件保留原狀，回傳拒絕碼。 |
 | `rule_nlu.py`（WP05） | `extract(item_id: int, text: str) -> NluResult` | 只解析指定題目。清楚且符合兩週的頻率可回候選分值。詞彙範圍外、模糊、矛盾、時間缺失時必須拒答。 |
 | Evidence Manager（WP04／05） | `decide_candidate(result: NluResult) -> Decision` | 放在 Controller 的小型純規則。只允許當前題目、對應過去兩週、無衝突且合規的分值成為暫存候選。其他輸出均導向有原因碼的澄清，`confidence_signal` 只作診斷。 |
 | `app.py`（WP06） | `streamlit run app.py` | 將文字或操作送到 `dispatch`，以 `st.session_state` 保存最新快照，根據狀態呈現 consent、題目、澄清、核對、結果或中斷文案。表單提交才送事件，顯示重跑不重送。畫面不得直接寫入答案、判斷危機或計分。 |
@@ -67,7 +68,7 @@ flowchart LR
 | `SAFETY_FLOW` | 清除問卷資料與結果，停發一般對話。只允許 `CANCEL` 結束，或 `RESET` 建立新的 `START` 會話。 |
 | `RESULT`、`END` | 終止狀態。 `RESET` 用新 ID 重新開始，舊畫面事件不再有效。 `RESULT` 也可用 `CANCEL` 清空並結束。 |
 
-- 活動狀態為 `START / CONSENT / SCREENING / CLARIFICATION / EDIT_ANSWER / BATCH_REVIEW`。每筆由當前會話送入的 `TEXT` 先過 Guard，即使來源不是當前題目。非 `normal` 立即中斷，本次不呼叫 NLU、不前進、不計分。終止畫面不接受文字。 `CANCEL` 會清空活動中的問卷並進入 `END`。
+- 活動狀態為 `START / CONSENT / SCREENING / CLARIFICATION / EDIT_ANSWER / BATCH_REVIEW`。先拒絕與當前 `session_id` 不符的事件。每筆由當前會話送入的活動狀態 `TEXT` 先過 Guard，即使來源不是當前題目或版本過期。非 `normal` 立即中斷，本次不呼叫 NLU、不前進、不計分。終止畫面不接受文字。 `CANCEL` 會清空活動中的問卷並進入 `END`。
 - 除優先安全轉移外，過期版本、錯誤會話、重複提交與非法跳轉不改狀態。每次接受的操作推進版本，重跑只呈現現有狀態。已成功進入結果的確認事件重送時，不重新計分。
 - 候選與評分分離。 `TEXT` 和 `SELECT` 都只產生暫存。編輯後的最終確認重新生成八個確認值並只以最新版本計分。計分驗證若意外失敗，保留核對狀態並提供錯誤訊息，無確認集合或結果提交。
 - 四個標準頻率的意義依次為完全沒有（0）、有幾天（1）、超過一半的日子（2）、幾乎每天（3）。正式翻譯由團隊確認。選項事件的兩週時間窗來自畫面題幹。文字規則只接受已定義措辭且有明確兩週證據的回答。無單位的數字、模糊頻率與相互衝突的頻率一律交澄清。

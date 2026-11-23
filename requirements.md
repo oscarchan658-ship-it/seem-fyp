@@ -11,9 +11,9 @@ T01–T24 沿用 V3.1 §V-B 類別及順序。T25 起為新增驗收。測試以
 | FR-01 | 八項唯一、完整而明確確認的 0–3 整數才可加總及分類。 | WP03 `phq8_engine.py`、WP04 `controller.py` | §I-A、IV-B/C、WP03、使用者約束 | T01–T06、T19–T20、T25 |
 | FR-02 | 缺答、拒答或未確認維持無結果，缺答與合法 0 分可區分。 | WP03／04／05 評分、狀態與候選 | §IV-B/C、WP03/05、使用者約束 | T01、T05、T11–T12、T19、T24 |
 | FR-03 | 同意後逐題作答。只有合法事件可轉移，拒絕及取消清空。 | WP04 `controller.py` | §IV-C、WP04 | T08、T17、T18、T26 |
-| FR-04 | 每回合只寫入目標題，缺少過去兩週證據、模糊、矛盾或非法結構時澄清。 | WP01／04／05 `schemas.py`、`controller.py`、`rule_nlu.py` | §IV-B/C、WP01/05 | T09–T16、T24、T27 |
+| FR-04 | 每回合只寫入目標題，缺少過去兩週證據、模糊、矛盾或非法結構時澄清。 | WP01／04／05 `schemas.py`、`controller.py`、`rule_nlu.py` | §IV-B/C、WP01/05 | T09–T16、T24、T27、T35 |
 | FR-05 | 八題完整時批次核對。編輯、取消編輯、重跑或重送維持版本一致，只按最新已確認答案評分。 | WP03／04／06 計分、核對與 UI | §IV-C/E、WP03/04/06，版本守衛為提案 | T06–T07、T18–T20、T28 |
-| FR-06 | Guard 獨立於 sentiment，所有活動狀態的自由文字先過 Guard。中斷優先於 NLU、分數與正常轉移。 | WP04／06 `safety_guard.py`、控制器及 UI | §IV-B/C/E、§XII D04、使用者約束 | T21–T23、T29 |
+| FR-06 | Guard 獨立於 sentiment，所有活動狀態的自由文字先過 Guard。中斷優先於 NLU、分數與正常轉移。 | WP04／06 `safety_guard.py`、控制器及 UI | §IV-B/C/E、§XII D04、使用者約束 | T21–T23、T29、T36 |
 | FR-07 | NLU 失效回到同題選項。Guard 失效或 `review` 阻斷，提供對應的固定畫面。 | WP04／05／06 回退 | §IV-E、WP06，失效及 review 語意為提案 | T24、T29 |
 | FR-08 | Sentiment 缺席、與症狀不一致或輸出改變時，候選、確認及計分維持相同。 | WP04／05／06 整合邊界 | §I、IV-B/C、使用者約束 | T30 |
 | NFR-01 | 保留核准題目。畫面標示研究原型，分數呈現為篩查／症狀程度。使用已審核或標記的測試文案。 | WP01／06 規格與畫面 | §I-C、§IV-E、§X、使用者約束 | T31 |
@@ -61,5 +61,8 @@ T01–T24 沿用 V3.1 §V-B 類別及順序。T25 起為新增驗收。測試以
 | T32 | UI＋人工核對 | 用兩個獨立會話及無個資的虛構字串驗證隔離。重設不帶入舊資料。掃描觀察到的應用日誌、輸出、截圖及專案資料目錄，查無該字串的留存或輸出。 |
 | T33 | UI＋人工 demo | 乾淨環境執行 `python -m pytest -q` 和 `streamlit run app.py`。啟動後以合成資料從 consent 走到 result，能編輯並確認。記錄啟動方式、已使用的替身及實際截圖。 |
 | T34 | 驗收紀錄審查 | 每項 FR/NFR 有至少一個案例。執行後逐案留存測試 ID、預期／實際、PASS／FAIL、日期、Git commit、Python／pytest／Streamlit 版本和環境。未跑標未執行。 |
+
+| T35 | `tests/test_rule_nlu.py` | 句尾標點前空白不應令清楚頻率變成模糊；相同標點正規化亦不得接受模糊、缺時間窗及矛盾回覆。 |
+| T36 | `tests/test_controller.py` | 跨會話 TEXT 在 Guard 前拒絕；同會話舊版本 TEXT 先過 Guard 再驗版本；結構化 SELECT 不呼叫文字 Guard。 |
 
 Controller、Schema 和 Guard 案例可隨 WP04／05 分批完成。UI 測試建議以 Streamlit `AppTest` 驗證支援的操作，瀏覽器實際操作補足 widget 重跑、跨會話及截圖證據。若現有 Streamlit 版本或元件不支援該 API，在 repo baseline 確認後再定替代方式。[Streamlit AppTest 官方文件](https://docs.streamlit.io/develop/api-reference/app-testing/st.testing.v1.apptest)

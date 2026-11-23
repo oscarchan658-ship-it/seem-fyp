@@ -146,3 +146,46 @@ def test_t28_score_failure_is_atomic(monkeypatch, fault):
     out = dispatch(state, event(state, "CONFIRM"))
     assert out.response_code == "scoring_unavailable" and out.state is state
     assert not out.state.confirmed_answers and out.state.result is None
+
+
+def test_t36_cross_session_text_is_rejected_before_guard_and_nlu():
+    state = screening()
+    guard = Mock(side_effect=AssertionError("Must not inspect another session"))
+    nlu = Mock()
+    foreign = Event("TEXT", "foreign-session", -1, item_id=99, text="[DEMO_INTERRUPT]")
+    out = dispatch(state, foreign, guard=guard, nlu=nlu)
+    assert out.response_code == "rejected" and out.state is state
+    guard.assert_not_called()
+    nlu.assert_not_called()
+
+
+@pytest.mark.parametrize(("guard_result", "expected_code", "expected_phase"), [
+    ("normal", "rejected", "SCREENING"),
+    ("review", "safety_review", "SAFETY_FLOW"),
+    ("interrupt", "safety_interrupt", "SAFETY_FLOW"),
+])
+def test_t36_same_session_stale_text_runs_guard_before_revision_validation(
+    guard_result, expected_code, expected_phase
+):
+    state = screening()
+    guard, nlu = Mock(return_value=guard_result), Mock()
+    stale = Event("TEXT", state.session_id, state.revision - 1,
+                  item_id=99, text="synthetic stale event")
+    out = dispatch(state, stale, guard=guard, nlu=nlu)
+    assert (out.response_code, out.state.phase) == (expected_code, expected_phase)
+    guard.assert_called_once_with("synthetic stale event")
+    nlu.assert_not_called()
+    if expected_phase == "SCREENING":
+        assert out.state is state
+    else:
+        assert not out.state.provisional_answers
+        assert out.state.result is None
+
+
+def test_t36_select_input_does_not_invoke_text_guard():
+    state = screening()
+    guard = Mock(side_effect=AssertionError("Structured choice is not free text"))
+    out = dispatch(state, event(state, "SELECT", item_id=1, value=2), guard=guard)
+    assert out.response_code == "question"
+    assert out.state.provisional_answers == {1: 2}
+    guard.assert_not_called()

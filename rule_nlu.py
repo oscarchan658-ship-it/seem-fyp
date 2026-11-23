@@ -9,7 +9,7 @@ _WINDOW = re.compile(r"^(過去兩週|過去兩星期|過去14天)\s*[，,：:]?
 
 def extract(item_id: int, text: str) -> NluResult:
     """Parse the small set of synthetic replies scoped to the current item."""
-    text = text.strip().rstrip("。.!！")
+    text = text.strip().rstrip("。.!！").rstrip()
     window = _WINDOW.match(text)
     timeframe = "past_14_days" if window else "other" if text.startswith("上週") else "missing"
     out: NluResult = {
