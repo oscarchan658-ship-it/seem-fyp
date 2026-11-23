@@ -15,7 +15,7 @@
 | §V-B 列測試類別，部分情境缺少可執行的預期結果。§VIII-D 提及真實模型整合，§XI 容許 Mock。 | 補上固定輸入、判定及驗證紀錄。第一期依賴本地規則與合成 fixtures。組員的 API 屬後續可替換介面，無需等待資料授權、模型或網路。 |
 | §IV-B 只寫「預設不持久化」，未列 Streamlit 重跑、日誌與分頁的資料邊界。 | 只在該 Streamlit 會話記憶體保留必要狀態。自由文字只在單次事件處理時使用，提交後移除輸入 widget 值。兩個會話互相隔離。 |
 
-已查看 V3.1 文字、表格及兩張內嵌圖。初始工作目錄只有 Word 文件，`git rev-parse` 無有效工作樹，已連接 GitHub 的可見 repo 未見本 FYP。原始碼、既有接口、依賴版本與測試基線皆未核對。下列檔名依 V3.1 規劃，取得 repo 後應沿用其等效入口。
+已查看 V3.1 文字、表格及兩張內嵌圖。本文件描述 GitHub repo 內的合成原型接口。正式題幹、真實訊號規則與支援文案待審。
 
 ## 資料流
 
@@ -41,7 +41,7 @@ flowchart LR
 |---|---|---|
 | `schemas.py`（WP01） | `validate_nlu(payload: Mapping[str, object], expected_item: int) -> NluResult` | 共用型別如下。非法結構或錯題拋 `ValueError`，控制器轉結構化選項回退。反序列化與評分邊界均需驗證。 |
 | `phq8_engine.py`（WP03） | `score_phq8(confirmed: Sequence[ConfirmedAnswer]) -> Phq8Result` | 純函式。要求恰好八個唯一且完整的題號 1–8，分值為 0–3 的嚴格整數。缺漏、重複、額外題、未確認型別或非法值均拋 `ValueError`，無部分結果。 |
-| `safety_guard.py`（WP04） | `check_safety(text: str) -> SafetyDecision` | 本地受審規則回傳 `normal / review / interrupt`。回傳值非法或呼叫失敗，由 Controller 以 Guard 故障處理。轉移碼分別為 `safety_review / safety_interrupt / safety_unavailable`，由 UI 選取固定回應，避免回顯文字。 |
+| `safety_guard.py`（WP04） | `check_safety(text: str) -> SafetyDecision` | 第一版為有版本的合成替身，回傳 `normal / review / interrupt`。回傳值非法或呼叫失敗，由 Controller 以 Guard 故障處理。轉移碼分別為 `safety_review / safety_interrupt / safety_unavailable`，由 UI 選取固定測試回應，避免回顯文字。 |
 | `controller.py`（WP04） | `new_session() -> SessionState`、`dispatch(state: SessionState, event: Event) -> Transition` | 單一轉移入口，外部 Guard 與 NLU 可用替身注入。先處理安全，再驗證會話、版本、事件與題號，最後處理狀態。回傳新快照、畫面回應碼與不含文字的轉移摘要。非法事件保留原狀，回傳拒絕碼。 |
 | `rule_nlu.py`（WP05） | `extract(item_id: int, text: str) -> NluResult` | 只解析指定題目。清楚且符合兩週的頻率可回候選分值。詞彙範圍外、模糊、矛盾、時間缺失時必須拒答。 |
 | Evidence Manager（WP04／05） | `decide_candidate(result: NluResult) -> Decision` | 放在 Controller 的小型純規則。只允許當前題目、對應過去兩週、無衝突且合規的分值成為暫存候選。其他輸出均導向有原因碼的澄清，`confidence_signal` 只作診斷。 |
