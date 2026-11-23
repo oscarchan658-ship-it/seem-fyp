@@ -14,6 +14,15 @@ python -m streamlit run app.py
 
 Streamlit 預設只監聽本機。問卷狀態留在當前會話的記憶體。原型沒有 DB、模型服務或 sentiment 依賴。
 
+審查分支可使用與 CI 相同的品質檢查。
+
+```text
+python -m pip install -r requirements-dev.txt
+python -m ruff check .
+python -m ruff format --check .
+python -m pytest -q --cov=. --cov-report=term-missing
+```
+
 ## 合成展示
 
 1. 開始並同意。第一題輸入「有時」，確認程式留在同題並請求澄清。選「完全沒有」。
