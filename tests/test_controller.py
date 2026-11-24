@@ -103,7 +103,9 @@ def test_t23_safety_wins_before_stale_and_off_topic_checks(phase, monkeypatch):
     nlu, scorer = Mock(), Mock()
     monkeypatch.setattr("controller.score_phq8", scorer)
     text = Event("TEXT", before.session_id, -1, item_id=99, text="synthetic signal")
-    out = dispatch(before, text, guard=Mock(return_value="interrupt"), nlu=nlu)
+    out = dispatch(
+        before, text, guard=Mock(return_value="interrupt"), nlu=Mock(predict=nlu)
+    )
     assert out.response_code == "safety_interrupt"
     stopped = out.state
     assert stopped.phase == "SAFETY_FLOW"
@@ -129,7 +131,12 @@ def test_t29_safety_review_and_guard_failure_block(guard, code, monkeypatch):
     state = review()
     nlu, scorer = Mock(), Mock()
     monkeypatch.setattr("controller.score_phq8", scorer)
-    out = dispatch(state, event(state, "TEXT", text="synthetic"), guard=guard, nlu=nlu)
+    out = dispatch(
+        state,
+        event(state, "TEXT", text="synthetic"),
+        guard=guard,
+        nlu=Mock(predict=nlu),
+    )
     assert out.state.phase == "SAFETY_FLOW" and out.response_code == code
     assert not out.state.provisional_answers
     assert step(out.state, "CONFIRM") is out.state
@@ -140,7 +147,9 @@ def test_t29_safety_review_and_guard_failure_block(guard, code, monkeypatch):
 @pytest.mark.parametrize("nlu", [Mock(side_effect=RuntimeError), Mock(return_value={})])
 def test_t24_nlu_failure_preserves_answers_and_allows_selection(nlu):
     state = step(screening(), "SELECT", item_id=1, value=0)
-    out = dispatch(state, event(state, "TEXT", item_id=2, text="synthetic"), nlu=nlu)
+    out = dispatch(
+        state, event(state, "TEXT", item_id=2, text="synthetic"), nlu=Mock(predict=nlu)
+    )
     assert out.response_code == "nlu_unavailable"
     assert (out.state.phase, out.state.item_id) == ("CLARIFICATION", 2)
     assert out.state.provisional_answers == {1: 0}
@@ -164,7 +173,7 @@ def test_t36_cross_session_text_is_rejected_before_guard_and_nlu():
     guard = Mock(side_effect=AssertionError("Must not inspect another session"))
     nlu = Mock()
     foreign = Event("TEXT", "foreign-session", -1, item_id=99, text="[DEMO_INTERRUPT]")
-    out = dispatch(state, foreign, guard=guard, nlu=nlu)
+    out = dispatch(state, foreign, guard=guard, nlu=Mock(predict=nlu))
     assert out.response_code == "rejected" and out.state is state
     guard.assert_not_called()
     nlu.assert_not_called()
@@ -190,7 +199,7 @@ def test_t36_same_session_stale_text_runs_guard_before_revision_validation(
         item_id=99,
         text="synthetic stale event",
     )
-    out = dispatch(state, stale, guard=guard, nlu=nlu)
+    out = dispatch(state, stale, guard=guard, nlu=Mock(predict=nlu))
     assert (out.response_code, out.state.phase) == (expected_code, expected_phase)
     guard.assert_called_once_with("synthetic stale event")
     nlu.assert_not_called()

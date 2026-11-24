@@ -85,7 +85,9 @@ def test_t24_invalid_nlu_gives_selection_fallback(monkeypatch):
     dispatch = controller.dispatch
     broken = Mock(return_value={})
     monkeypatch.setattr(
-        controller, "dispatch", lambda state, event: dispatch(state, event, nlu=broken)
+        controller,
+        "dispatch",
+        lambda state, event: dispatch(state, event, nlu=Mock(predict=broken)),
     )
     app = screening()
     app.chat_input[0].set_value("synthetic").run()

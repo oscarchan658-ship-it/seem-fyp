@@ -77,7 +77,7 @@ def test_t27_invalid_schema_cannot_write_answer(changes):
     with pytest.raises(ValueError):
         validate_nlu(invalid, 1)
     text = Event("TEXT", state.session_id, state.revision, item_id=1, text="synthetic")
-    out = dispatch(state, text, nlu=Mock(return_value=invalid))
+    out = dispatch(state, text, nlu=Mock(predict=Mock(return_value=invalid)))
     assert out.response_code == "nlu_unavailable" and not out.state.provisional_answers
 
 

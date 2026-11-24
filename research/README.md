@@ -2,7 +2,7 @@
 
 ## C06 Day-to-Frequency Mapping（待核定）
 
-`nlu_provider.py` 的 `RuleProvider` 只讓明確類別繼承當題過去兩週的時間窗。`recognize_days` 在同一題且已追問過去兩週頻率時，可識別「Around five days」為約略五天。天數從不轉成候選分數。這個介面尚未接入互動 Controller。
+`nlu_provider.py` 的 `RuleProvider` 只讓明確類別繼承當題過去兩週的時間窗。`recognize_days` 在同一題且已追問過去兩週頻率時，可識別「Around five days」為約略五天。B1 分支已接入互動 Controller；天數不產生頻率候選，畫面繼續澄清。
 
 啟用轉換前，需有核定版本列明：依據來源、量表及適用語言、時間窗、0–14 天各類別完整區間、精確與約略天數、跨級區間、模糊、超界和衝突時的處理，以及各邊界的虛構測試。收到核定版後，先加邊界測試，再啟用映射。
 

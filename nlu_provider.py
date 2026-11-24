@@ -78,6 +78,8 @@ class RuleProvider:
             result.update(
                 frequency_candidate=None, symptom_present=None, ambiguity="off_topic"
             )
+        elif recognize_days(request) is not None:
+            result.update(timeframe="past_14_days")
         elif (
             result["timeframe"] == "missing"
             and request.question_timeframe == "past_14_days"

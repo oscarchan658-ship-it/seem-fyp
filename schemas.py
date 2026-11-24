@@ -79,6 +79,7 @@ class SessionState:
     confirmed_answers: tuple[ConfirmedAnswer, ...] = ()
     safety_state: str | None = None
     result: Phq8Result | None = None
+    clarification_item_id: int | None = None
 
 
 @dataclass(frozen=True)
@@ -88,3 +89,4 @@ class Transition:
     previous_phase: str
     event_kind: str
     item_id: int | None
+    evidence_reason: str | None = None

@@ -1,12 +1,13 @@
-from collections.abc import Callable, Mapping
+from collections.abc import Callable
 from dataclasses import replace
 from types import MappingProxyType
 from uuid import uuid4
 
+from evidence_manager import assess_candidate, evaluate_candidate
+from nlu_provider import ClarificationContext, NLUProvider, NluRequest, RuleProvider
 from phq8_engine import ConfirmedAnswer, score_phq8
-from rule_nlu import extract
 from safety_guard import check_safety
-from schemas import Event, NluResult, SessionState, Transition, validate_nlu
+from schemas import Event, NluResult, SessionState, Transition
 
 _ACTIVE = (
     "START",
@@ -36,22 +37,7 @@ def new_session() -> SessionState:
 
 
 def decide_candidate(result: NluResult) -> int | None:
-    if (
-        result["timeframe"] != "past_14_days"
-        or result["ambiguity"] != "none"
-        or result["negation"] == "unclear"
-    ):
-        return None
-    value = result["frequency_candidate"]
-    if value == 0 and (
-        result["symptom_present"] is not False or result["negation"] != "clear"
-    ):
-        return None
-    if value and (
-        result["symptom_present"] is not True or result["negation"] != "none"
-    ):
-        return None
-    return value
+    return assess_candidate(result).value
 
 
 def dispatch(
@@ -59,14 +45,19 @@ def dispatch(
     event: Event,
     *,
     guard: Callable[[str], object] = check_safety,
-    nlu: Callable[[int, str], Mapping[str, object]] = extract,
+    nlu: NLUProvider = RuleProvider(),
 ) -> Transition:
-    def reply(updated: SessionState, code: str) -> Transition:
+    def reply(
+        updated: SessionState, code: str, reason: str | None = None
+    ) -> Transition:
         kind = event.kind if event.kind in _ACTIONS else "UNKNOWN"
-        return Transition(updated, code, state.phase, kind, state.item_id)
+        return Transition(updated, code, state.phase, kind, state.item_id, reason)
 
-    def advance(code: str, **changes) -> Transition:
-        return reply(replace(state, revision=state.revision + 1, **changes), code)
+    def advance(code: str, *, reason: str | None = None, **changes) -> Transition:
+        changes.setdefault("clarification_item_id", None)
+        return reply(
+            replace(state, revision=state.revision + 1, **changes), code, reason
+        )
 
     def clear(phase: str, code: str) -> Transition:
         safety_state = code if phase == "SAFETY_FLOW" else None
@@ -164,13 +155,28 @@ def dispatch(
         clarification_phase = (
             "EDIT_ANSWER" if phase == "EDIT_ANSWER" else "CLARIFICATION"
         )
+        context = (
+            ClarificationContext(event.item_id, "frequency_in_past_14_days")
+            if state.clarification_item_id == event.item_id
+            else None
+        )
         try:
-            candidate = validate_nlu(nlu(event.item_id, event.text), event.item_id)
-            value = decide_candidate(candidate)
+            request = NluRequest(event.item_id, event.text, clarification=context)
+            decision = evaluate_candidate(nlu.predict(request), event.item_id)
         except Exception:
-            return advance("nlu_unavailable", phase=clarification_phase)
+            return advance(
+                "nlu_unavailable",
+                phase=clarification_phase,
+                clarification_item_id=event.item_id,
+            )
+        value = decision.value
         if value is None:
-            return advance("clarify", phase=clarification_phase)
+            return advance(
+                "clarify",
+                reason=decision.reason,
+                phase=clarification_phase,
+                clarification_item_id=event.item_id,
+            )
     else:
         return reply(state, "rejected")
 
