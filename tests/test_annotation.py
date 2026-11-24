@@ -119,3 +119,29 @@ def test_oracle_requires_a_complete_unique_branch_pair():
         validate_scenarios([scenario], formal=True)
     with pytest.raises(ValueError, match="duplicate Oracle branch"):
         validate_scenarios([scenario | {"branches": scenario["branches"] * 2}])
+
+
+@pytest.mark.parametrize(
+    ("sheet", "error"),
+    [
+        (
+            "case_id,gold_frequency,gold_frequency,ambiguity,timeframe\nx,1,2,none,past_14_days\n",
+            "duplicate annotation columns",
+        ),
+        ("case_id,gold_frequency,ambiguity,timeframe\nx\n", "Invalid annotation row"),
+    ],
+)
+def test_compare_rejects_malformed_annotation_sheets(tmp_path, sheet, error):
+    source = tmp_path / "source.jsonl"
+    left = tmp_path / "left.csv"
+    right = tmp_path / "right.csv"
+    source.write_text('{"case_id":"x"}\n', encoding="utf-8")
+    left.write_text(sheet, encoding="utf-8")
+    right.write_text(
+        "case_id,gold_frequency,ambiguity,timeframe\nx,1,none,past_14_days\n",
+        encoding="utf-8",
+    )
+    output = tmp_path / "review"
+    with pytest.raises(ValueError, match=error):
+        compare(source, left, right, output)
+    assert not output.exists()

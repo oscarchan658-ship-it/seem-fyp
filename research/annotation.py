@@ -3,6 +3,7 @@
 import argparse
 import csv
 import hashlib
+import io
 import json
 from collections import Counter
 from pathlib import Path
@@ -84,9 +85,21 @@ def prepare(dev_file, locked_file, output):
 
 
 def _read_labels(path, expected, *, adjudication=False):
+    content = path.read_bytes()
     result = {}
-    with path.open(encoding="utf-8-sig", newline="") as file:
-        for row in csv.DictReader(file):
+    with io.StringIO(content.decode("utf-8-sig"), newline="") as file:
+        reader = csv.DictReader(file)
+        fields = reader.fieldnames or []
+        required = {"case_id", *LABELS}
+        if adjudication:
+            required.add("annotation_ref")
+        if not required.issubset(fields) or len(fields) != len(set(fields)):
+            raise ValueError(f"Missing or duplicate annotation columns in {path.name}.")
+        for row in reader:
+            if None in row or any(value is None for value in row.values()):
+                raise ValueError(
+                    f"Invalid annotation row at {path.name}:{reader.line_num}."
+                )
             case = row["case_id"]
             if case.lstrip().startswith(("=", "+", "-", "@")):
                 raise ValueError("Case IDs must be safe to read in a spreadsheet.")
@@ -103,7 +116,7 @@ def _read_labels(path, expected, *, adjudication=False):
         raise ValueError(
             "Annotation sheets must cover every expected case exactly once."
         )
-    return result
+    return result, hashlib.sha256(content).hexdigest()
 
 
 def agreement(left, right):
@@ -136,7 +149,7 @@ def compare(source, a_file, b_file, output):
     if a_file.samefile(b_file):
         raise ValueError("Provide two distinct annotation sheets.")
     expected = {row["case_id"] for row in read_cases(source)}
-    left, right = (_read_labels(path, expected) for path in (a_file, b_file))
+    (left, _), (right, _) = (_read_labels(path, expected) for path in (a_file, b_file))
     output.mkdir()
     disagreements = [
         case for case in sorted(expected) if left[case][0] != right[case][0]
@@ -170,10 +183,14 @@ def freeze(dev_file, locked_file, reviewers, output, *, validation_groups, seed)
         if paths[0].samefile(paths[1]):
             raise ValueError("Provide two distinct annotation sheets.")
         expected = {row["case_id"] for row in rows}
-        left, right = (_read_labels(path, expected) for path in paths[:2])
+        (left, a_hash), (right, b_hash) = (
+            _read_labels(path, expected) for path in paths[:2]
+        )
         conflicts = {case for case in expected if left[case][0] != right[case][0]}
-        adjudicated = _read_labels(paths[2], conflicts, adjudication=True)
-        hashes = [hashlib.sha256(path.read_bytes()).hexdigest() for path in paths]
+        adjudicated, adjudication_hash = _read_labels(
+            paths[2], conflicts, adjudication=True
+        )
+        hashes = (a_hash, b_hash, adjudication_hash)
         provenance[name] = dict(
             zip(("annotator_a", "annotator_b", "adjudication"), hashes)
         )
