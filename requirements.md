@@ -6,20 +6,20 @@ T01–T24 沿用 V3.1 §V-B 類別及順序。T25 起為新增驗收。測試以
 
 ## 需求追蹤矩陣
 
-| ID | 需求 | WP／落點 | 來源 | 測試 |
-|---|---|---|---|---|
-| FR-01 | 八項唯一、完整而明確確認的 0–3 整數才可加總及分類。 | WP03 `phq8_engine.py`、WP04 `controller.py` | §I-A、IV-B/C、WP03、使用者約束 | T01–T06、T19–T20、T25 |
-| FR-02 | 缺答、拒答或未確認維持無結果，缺答與合法 0 分可區分。 | WP03／04／05 評分、狀態與候選 | §IV-B/C、WP03/05、使用者約束 | T01、T05、T11–T12、T19、T24 |
-| FR-03 | 同意後逐題作答。只有合法事件可轉移，拒絕及取消清空。 | WP04 `controller.py` | §IV-C、WP04 | T08、T17、T18、T26 |
-| FR-04 | 每回合只寫入目標題，缺少過去兩週證據、模糊、矛盾或非法結構時澄清。 | WP01／04／05 `schemas.py`、`controller.py`、`rule_nlu.py` | §IV-B/C、WP01/05 | T09–T16、T24、T27、T35 |
-| FR-05 | 八題完整時批次核對。編輯、取消編輯、重跑或重送維持版本一致，只按最新已確認答案評分。 | WP03／04／06 計分、核對與 UI | §IV-C/E、WP03/04/06，版本守衛為提案 | T06–T07、T18–T20、T28 |
-| FR-06 | Guard 獨立於 sentiment，所有活動狀態的自由文字先過 Guard。中斷優先於 NLU、分數與正常轉移。 | WP04／06 `safety_guard.py`、控制器及 UI | §IV-B/C/E、§XII D04、使用者約束 | T21–T23、T29、T36 |
-| FR-07 | NLU 失效回到同題選項。Guard 失效或 `review` 阻斷，提供對應的固定畫面。 | WP04／05／06 回退 | §IV-E、WP06，失效及 review 語意為提案 | T24、T29 |
-| FR-08 | Sentiment 缺席、與症狀不一致或輸出改變時，候選、確認及計分維持相同。 | WP04／05／06 整合邊界 | §I、IV-B/C、使用者約束 | T30 |
-| NFR-01 | 保留核准題目。畫面標示研究原型，分數呈現為篩查／症狀程度。使用已審核或標記的測試文案。 | WP01／06 規格與畫面 | §I-C、§IV-E、§X、使用者約束 | T31 |
-| NFR-02 | 本地以 Python、pytest、Streamlit 重現。只用合成資料，不依賴 DB、外部模型或真實病患資料。 | WP01／06 安裝、執行與資料治理 | §IV-B/E、WP06、§XI、使用者約束 | T24、T31–T33 |
-| NFR-03 | 自由文字只在事件處理所需期間使用。會話隔離，取消／中斷／重設清除問卷資料，追蹤資料排除原始文字。 | WP01／04／06 schema、控制器及 UI | §IV-B/C/E，清除及隔離為提案 | T08、T23、T32 |
-| NFR-04 | 每項必備需求可追到驗收案例，僅以實際執行的證據填報結果。 | WP01 規格、測試證據 | §V-A/B、WP01、使用者約束 | T34 |
+| ID | 需求 | WP／落點 | 來源 | 測試 | 狀態 | 證據 |
+|---|---|---|---|---|---|---|
+| FR-01 | 八項唯一、完整而明確確認的 0–3 整數才可加總及分類。 | WP03 `phq8_engine.py`、WP04 `controller.py` | §I-A、IV-B/C、WP03、使用者約束 | T01–T06、T19–T20、T25 | Verified (synthetic) | [驗收紀錄](docs/verification/wp01-wp06-synthetic.md) |
+| FR-02 | 缺答、拒答或未確認維持無結果，缺答與合法 0 分可區分。 | `phq8_engine.py`、`controller.py`、`rule_nlu.py` | §IV-B/C、WP03/05、使用者約束 | T01、T05、T11–T12、T19、T24 | Verified (synthetic) | [驗收紀錄](docs/verification/wp01-wp06-synthetic.md) |
+| FR-03 | 同意後逐題作答。只有合法事件可轉移，拒絕及取消清空。 | WP04 `controller.py` | §IV-C、WP04 | T08、T17、T18、T26 | Verified (synthetic) | [驗收紀錄](docs/verification/wp01-wp06-synthetic.md) |
+| FR-04 | 每回合只寫入目標題，缺少過去兩週證據、模糊、矛盾或非法結構時澄清。 | WP01／04／05 `schemas.py`、`controller.py`、`rule_nlu.py` | §IV-B/C、WP01/05 | T09–T16、T24、T27、T35 | Verified (synthetic) | [驗收紀錄](docs/verification/wp01-wp06-synthetic.md) |
+| FR-05 | 八題完整時批次核對。編輯、取消編輯、重跑或重送維持版本一致，只按最新已確認答案評分。 | `controller.py`、`app.py` | §IV-C/E、WP03/04/06，版本守衛為提案 | T06–T07、T18–T20、T28 | Verified (synthetic) | [驗收紀錄](docs/verification/wp01-wp06-synthetic.md) |
+| FR-06 | Guard 獨立於 sentiment，所有活動狀態的自由文字先過 Guard。中斷優先於 NLU、分數與正常轉移。 | WP04／06 `safety_guard.py`、控制器及 UI | §IV-B/C/E、§XII D04、使用者約束 | T21–T23、T29、T36 | Partial | [驗收紀錄](docs/verification/wp01-wp06-synthetic.md) |
+| FR-07 | NLU 失效回到同題選項。Guard 失效或 `review` 阻斷，提供對應的固定畫面。 | `controller.py`、`app.py`、`safety_guard.py` | §IV-E、WP06，失效及 review 語意為提案 | T24、T29 | Verified (synthetic) | [驗收紀錄](docs/verification/wp01-wp06-synthetic.md) |
+| FR-08 | Sentiment 缺席、與症狀不一致或輸出改變時，候選、確認及計分維持相同。 | `controller.py`、`app.py` | §I、IV-B/C、使用者約束 | T30 | Verified (synthetic) | [驗收紀錄](docs/verification/wp01-wp06-synthetic.md) |
+| NFR-01 | 保留核准題目。畫面標示研究原型，分數呈現為篩查／症狀程度。使用已審核或標記的測試文案。 | `app.py` | §I-C、§IV-E、§X、使用者約束 | T31 | Partial | [驗收紀錄](docs/verification/wp01-wp06-synthetic.md) |
+| NFR-02 | 本地以 Python、pytest、Streamlit 重現。只用合成資料，不依賴 DB、外部模型或真實病患資料。 | `app.py`、`tests/test_app.py` | §IV-B/E、WP06、§XI、使用者約束 | T24、T31–T33 | Verified (synthetic) | [驗收紀錄](docs/verification/wp01-wp06-synthetic.md) |
+| NFR-03 | 自由文字只在事件處理所需期間使用。會話隔離，取消／中斷／重設清除問卷資料，追蹤資料排除原始文字。 | `schemas.py`、`controller.py`、`app.py` | §IV-B/C/E，清除及隔離為提案 | T08、T23、T32 | Verified (synthetic) | [驗收紀錄](docs/verification/wp01-wp06-synthetic.md) |
+| NFR-04 | 每項必備需求可追到驗收案例，僅以實際執行的證據填報結果。 | `tests/test_traceability.py` | §V-A/B、WP01、使用者約束 | T34 | Verified (synthetic) | [驗收紀錄](docs/verification/wp01-wp06-synthetic.md) |
 
 ## 驗收案例
 

@@ -12,7 +12,9 @@ class NluResult(TypedDict):
     timeframe: Literal["past_14_days", "missing", "other", "unclear"]
     symptom_present: bool | None
     negation: Literal["none", "clear", "unclear"]
-    ambiguity: Literal["none", "ambiguous_frequency", "uncertain", "contradiction", "off_topic"]
+    ambiguity: Literal[
+        "none", "ambiguous_frequency", "uncertain", "contradiction", "off_topic"
+    ]
     model_version: str
     confidence_signal: NotRequired[int | float | None]
 
@@ -44,7 +46,10 @@ def validate_nlu(payload: Mapping[str, object], expected_item: int) -> NluResult
     for key, choices in (
         ("timeframe", ("past_14_days", "missing", "other", "unclear")),
         ("negation", ("none", "clear", "unclear")),
-        ("ambiguity", ("none", "ambiguous_frequency", "uncertain", "contradiction", "off_topic")),
+        (
+            "ambiguity",
+            ("none", "ambiguous_frequency", "uncertain", "contradiction", "off_topic"),
+        ),
     ):
         if type(payload[key]) is not str or payload[key] not in choices:
             raise ValueError(f"Invalid {key}.")
@@ -68,7 +73,9 @@ class SessionState:
     revision: int = 0
     item_id: int | None = None
     return_to: tuple[str, int | None] | None = None
-    provisional_answers: Mapping[int, int] = field(default_factory=lambda: MappingProxyType({}))
+    provisional_answers: Mapping[int, int] = field(
+        default_factory=lambda: MappingProxyType({})
+    )
     confirmed_answers: tuple[ConfirmedAnswer, ...] = ()
     safety_state: str | None = None
     result: Phq8Result | None = None

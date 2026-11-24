@@ -2,7 +2,6 @@ name: Python checks
 
 on:
   pull_request:
-    branches: [main]
   push:
     branches: [main]
 
@@ -20,8 +19,12 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install dependencies
-        run: python -m pip install -r requirements.txt
+        run: python -m pip install -r requirements-dev.txt
       - name: Verify installed dependencies
         run: python -m pip check
-      - name: Run complete test suite
-        run: python -m pytest -q
+      - name: Check Python lint and format
+        run: |
+          python -m ruff check .
+          python -m ruff format --check .
+      - name: Run complete test suite and report coverage
+        run: python -m pytest -q --cov=. --cov-report=term-missing

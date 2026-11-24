@@ -83,16 +83,21 @@ def test_t20_confirms_unedited_batch():
     assert done.phase == "RESULT" and done.result.total == 12
 
 
-@pytest.mark.parametrize("phase", ["START", "CONSENT", "SCREENING", "CLARIFICATION",
-                                   "EDIT_ANSWER", "BATCH_REVIEW"])
+@pytest.mark.parametrize(
+    "phase",
+    ["START", "CONSENT", "SCREENING", "CLARIFICATION", "EDIT_ANSWER", "BATCH_REVIEW"],
+)
 def test_t23_safety_wins_before_stale_and_off_topic_checks(phase, monkeypatch):
     start = new_session()
     active = screening()
     answered = step(active, "SELECT", item_id=1, value=1)
     states = {
-        "START": start, "CONSENT": step(start, "START"), "SCREENING": active,
+        "START": start,
+        "CONSENT": step(start, "START"),
+        "SCREENING": active,
         "CLARIFICATION": step(active, "TEXT", item_id=1, text="不確定"),
-        "EDIT_ANSWER": step(answered, "EDIT", item_id=1), "BATCH_REVIEW": review(),
+        "EDIT_ANSWER": step(answered, "EDIT", item_id=1),
+        "BATCH_REVIEW": review(),
     }
     before = states[phase]
     nlu, scorer = Mock(), Mock()
@@ -112,11 +117,14 @@ def test_t23_safety_wins_before_stale_and_off_topic_checks(phase, monkeypatch):
     scorer.assert_not_called()
 
 
-@pytest.mark.parametrize(("guard", "code"), [
-    (Mock(return_value="review"), "safety_review"),
-    (Mock(return_value=[]), "safety_unavailable"),
-    (Mock(side_effect=RuntimeError), "safety_unavailable"),
-])
+@pytest.mark.parametrize(
+    ("guard", "code"),
+    [
+        (Mock(return_value="review"), "safety_review"),
+        (Mock(return_value=[]), "safety_unavailable"),
+        (Mock(side_effect=RuntimeError), "safety_unavailable"),
+    ],
+)
 def test_t29_safety_review_and_guard_failure_block(guard, code, monkeypatch):
     state = review()
     nlu, scorer = Mock(), Mock()
@@ -136,7 +144,10 @@ def test_t24_nlu_failure_preserves_answers_and_allows_selection(nlu):
     assert out.response_code == "nlu_unavailable"
     assert (out.state.phase, out.state.item_id) == ("CLARIFICATION", 2)
     assert out.state.provisional_answers == {1: 0}
-    assert step(out.state, "SELECT", item_id=2, value=3).provisional_answers == {1: 0, 2: 3}
+    assert step(out.state, "SELECT", item_id=2, value=3).provisional_answers == {
+        1: 0,
+        2: 3,
+    }
 
 
 @pytest.mark.parametrize("fault", [ValueError, RuntimeError])
@@ -159,18 +170,26 @@ def test_t36_cross_session_text_is_rejected_before_guard_and_nlu():
     nlu.assert_not_called()
 
 
-@pytest.mark.parametrize(("guard_result", "expected_code", "expected_phase"), [
-    ("normal", "rejected", "SCREENING"),
-    ("review", "safety_review", "SAFETY_FLOW"),
-    ("interrupt", "safety_interrupt", "SAFETY_FLOW"),
-])
+@pytest.mark.parametrize(
+    ("guard_result", "expected_code", "expected_phase"),
+    [
+        ("normal", "rejected", "SCREENING"),
+        ("review", "safety_review", "SAFETY_FLOW"),
+        ("interrupt", "safety_interrupt", "SAFETY_FLOW"),
+    ],
+)
 def test_t36_same_session_stale_text_runs_guard_before_revision_validation(
     guard_result, expected_code, expected_phase
 ):
     state = screening()
     guard, nlu = Mock(return_value=guard_result), Mock()
-    stale = Event("TEXT", state.session_id, state.revision - 1,
-                  item_id=99, text="synthetic stale event")
+    stale = Event(
+        "TEXT",
+        state.session_id,
+        state.revision - 1,
+        item_id=99,
+        text="synthetic stale event",
+    )
     out = dispatch(state, stale, guard=guard, nlu=nlu)
     assert (out.response_code, out.state.phase) == (expected_code, expected_phase)
     guard.assert_called_once_with("synthetic stale event")

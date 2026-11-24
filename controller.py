@@ -8,9 +8,26 @@ from rule_nlu import extract
 from safety_guard import check_safety
 from schemas import Event, NluResult, SessionState, Transition, validate_nlu
 
-_ACTIVE = ("START", "CONSENT", "SCREENING", "CLARIFICATION", "EDIT_ANSWER", "BATCH_REVIEW")
-_ACTIONS = ("START", "ACCEPT", "DECLINE", "TEXT", "SELECT", "EDIT",
-            "CANCEL_EDIT", "CONFIRM", "CANCEL", "RESET")
+_ACTIVE = (
+    "START",
+    "CONSENT",
+    "SCREENING",
+    "CLARIFICATION",
+    "EDIT_ANSWER",
+    "BATCH_REVIEW",
+)
+_ACTIONS = (
+    "START",
+    "ACCEPT",
+    "DECLINE",
+    "TEXT",
+    "SELECT",
+    "EDIT",
+    "CANCEL_EDIT",
+    "CONFIRM",
+    "CANCEL",
+    "RESET",
+)
 _ITEMS = range(1, 9)
 
 
@@ -19,13 +36,20 @@ def new_session() -> SessionState:
 
 
 def decide_candidate(result: NluResult) -> int | None:
-    if (result["timeframe"] != "past_14_days" or result["ambiguity"] != "none"
-            or result["negation"] == "unclear"):
+    if (
+        result["timeframe"] != "past_14_days"
+        or result["ambiguity"] != "none"
+        or result["negation"] == "unclear"
+    ):
         return None
     value = result["frequency_candidate"]
-    if value == 0 and (result["symptom_present"] is not False or result["negation"] != "clear"):
+    if value == 0 and (
+        result["symptom_present"] is not False or result["negation"] != "clear"
+    ):
         return None
-    if value and (result["symptom_present"] is not True or result["negation"] != "none"):
+    if value and (
+        result["symptom_present"] is not True or result["negation"] != "none"
+    ):
         return None
     return value
 
@@ -46,8 +70,12 @@ def dispatch(
 
     def clear(phase: str, code: str) -> Transition:
         safety_state = code if phase == "SAFETY_FLOW" else None
-        return reply(SessionState(state.session_id, phase, state.revision + 1,
-                                  safety_state=safety_state), code)
+        return reply(
+            SessionState(
+                state.session_id, phase, state.revision + 1, safety_state=safety_state
+            ),
+            code,
+        )
 
     if event.session_id != state.session_id:
         return reply(state, "rejected")
@@ -62,7 +90,10 @@ def dispatch(
             )
             return clear("SAFETY_FLOW", code)
 
-    if type(event.expected_revision) is not int or event.expected_revision != state.revision:
+    if (
+        type(event.expected_revision) is not int
+        or event.expected_revision != state.revision
+    ):
         return reply(state, "rejected")
     kind, phase = event.kind, state.phase
     if kind not in ("TEXT", "SELECT", "EDIT") and (
@@ -82,33 +113,57 @@ def dispatch(
         return clear("END", "declined")
 
     if kind == "EDIT" and phase in ("SCREENING", "BATCH_REVIEW"):
-        if (type(event.item_id) is int and event.item_id in state.provisional_answers
-                and event.value is None and event.text is None):
-            return advance("edit", phase="EDIT_ANSWER", item_id=event.item_id,
-                           return_to=(phase, state.item_id))
+        if (
+            type(event.item_id) is int
+            and event.item_id in state.provisional_answers
+            and event.value is None
+            and event.text is None
+        ):
+            return advance(
+                "edit",
+                phase="EDIT_ANSWER",
+                item_id=event.item_id,
+                return_to=(phase, state.item_id),
+            )
         return reply(state, "rejected")
     if kind == "CANCEL_EDIT" and phase == "EDIT_ANSWER" and state.return_to:
         previous, item_id = state.return_to
-        return advance("edit_cancelled", phase=previous, item_id=item_id, return_to=None)
+        return advance(
+            "edit_cancelled", phase=previous, item_id=item_id, return_to=None
+        )
 
     if kind == "CONFIRM" and phase == "BATCH_REVIEW":
         if state.provisional_answers.keys() != set(_ITEMS):
             return reply(state, "scoring_unavailable")
-        answers = tuple(ConfirmedAnswer(item_id, state.provisional_answers[item_id])
-                        for item_id in _ITEMS)
+        answers = tuple(
+            ConfirmedAnswer(item_id, state.provisional_answers[item_id])
+            for item_id in _ITEMS
+        )
         try:
             result = score_phq8(answers)
         except Exception:
             return reply(state, "scoring_unavailable")
-        return advance("result", phase="RESULT", confirmed_answers=answers, result=result)
+        return advance(
+            "result", phase="RESULT", confirmed_answers=answers, result=result
+        )
 
-    if (phase not in ("SCREENING", "CLARIFICATION", "EDIT_ANSWER")
-            or type(event.item_id) is not int or event.item_id != state.item_id):
+    if (
+        phase not in ("SCREENING", "CLARIFICATION", "EDIT_ANSWER")
+        or type(event.item_id) is not int
+        or event.item_id != state.item_id
+    ):
         return reply(state, "rejected")
-    if kind == "SELECT" and event.text is None and type(event.value) is int and 0 <= event.value <= 3:
+    if (
+        kind == "SELECT"
+        and event.text is None
+        and type(event.value) is int
+        and 0 <= event.value <= 3
+    ):
         value = event.value
     elif kind == "TEXT" and isinstance(event.text, str) and event.value is None:
-        clarification_phase = "EDIT_ANSWER" if phase == "EDIT_ANSWER" else "CLARIFICATION"
+        clarification_phase = (
+            "EDIT_ANSWER" if phase == "EDIT_ANSWER" else "CLARIFICATION"
+        )
         try:
             candidate = validate_nlu(nlu(event.item_id, event.text), event.item_id)
             value = decide_candidate(candidate)
@@ -122,10 +177,26 @@ def dispatch(
     provisional = MappingProxyType({**state.provisional_answers, event.item_id: value})
     if phase == "EDIT_ANSWER" and state.return_to:
         previous, item_id = state.return_to
-        return advance("edited", phase=previous, item_id=item_id, return_to=None,
-                       provisional_answers=provisional)
-    next_item = next((item_id for item_id in _ITEMS if item_id not in provisional), None)
+        return advance(
+            "edited",
+            phase=previous,
+            item_id=item_id,
+            return_to=None,
+            provisional_answers=provisional,
+        )
+    next_item = next(
+        (item_id for item_id in _ITEMS if item_id not in provisional), None
+    )
     if next_item is None:
-        return advance("review", phase="BATCH_REVIEW", item_id=None, provisional_answers=provisional)
-    return advance("question", phase="SCREENING", item_id=next_item,
-                   provisional_answers=provisional)
+        return advance(
+            "review",
+            phase="BATCH_REVIEW",
+            item_id=None,
+            provisional_answers=provisional,
+        )
+    return advance(
+        "question",
+        phase="SCREENING",
+        item_id=next_item,
+        provisional_answers=provisional,
+    )
