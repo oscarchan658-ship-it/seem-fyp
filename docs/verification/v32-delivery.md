@@ -20,6 +20,8 @@
 
 ## 決策與證據
 
+- P0 的正式名稱為 **No-clarification model baseline**，用於離線模型比較。情緒與症狀的研究欄位為 `affect_symptom_divergence`，表示分開取得的情緒標籤與症狀證據之間的差異。模型或人工標籤的正式 RQ2 比較仍待實跑。
+
 - 先驗證會話，再依次執行 MOCK Guard、NLU、證據檢查及確認評分。控制器和 AppTest 驗證同會話中斷先於評分。 [既有瀏覽器與測試證據](wp01-wp06-synthetic.md)
 - 離線政策使用一個 provider 和版本。P1／P2 固定資料、Oracle 與確認方式；P2／P3 固定閾值及硬性規則。同一八題合成案例驗得批次確認一次，逐題確認八次，總分均為 16。正式 E3 的人寫分支、資料快照及閾值待凍結。
 - 在沒有接受案例時將風險記為空值。AURC 附觀測範圍。配對 CI 以群組抽樣，只有一個獨立群組便不報 CI。Pareto 排名須同時有 Accuracy、Risk、Latency、Cost 和 Turns。

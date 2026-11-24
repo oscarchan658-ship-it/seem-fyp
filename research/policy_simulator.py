@@ -9,6 +9,8 @@ from evidence_manager import assess_candidate
 from phq8_engine import ConfirmedAnswer, score_phq8
 from schemas import validate_nlu
 
+P0_LABEL = "No-clarification model baseline"
+
 
 @dataclass(frozen=True)
 class FrozenPrediction:
@@ -46,6 +48,10 @@ class Replay:
     confirmed: int | None
     error: int | None
     trace: tuple[Action, ...]
+
+    @property
+    def policy_label(self):
+        return P0_LABEL if self.policy == "P0" else self.policy
 
     @property
     def clarifications(self):
