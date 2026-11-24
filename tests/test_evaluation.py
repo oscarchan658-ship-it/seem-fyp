@@ -32,7 +32,9 @@ def test_c09_comparison_and_offline_confirmation():
         (2, "confirm-batch"): ScriptedReply("reply", confirmed_value=2),
         (2, "confirm-item"): ScriptedReply("reply", confirmed_value=2),
     }
-    assert simulate(*args, "P0", {}).confirmed is None
+    baseline = simulate(*args, "P0", {})
+    assert baseline.confirmed is None
+    assert baseline.policy_label == "No-clarification model baseline"
     conservative = simulate(*args, "P1", oracle)
     batch = simulate(*args, "P2", oracle, threshold=0.8)
     item = simulate(*args, "P3", oracle, threshold=0.8)

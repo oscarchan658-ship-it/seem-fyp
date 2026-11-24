@@ -4,7 +4,7 @@ import json
 from collections.abc import Callable
 from dataclasses import dataclass
 from math import isfinite
-from typing import Literal, Protocol
+from typing import Literal, NamedTuple, Protocol
 
 from evidence_manager import evaluate_candidate
 from nlu_provider import NluRequest
@@ -39,9 +39,14 @@ class SentimentProvider(Protocol):
     def predict(self, text: str) -> SentimentResult: ...
 
 
+class SentimentFeatures(NamedTuple):
+    sentiment: SentimentResult
+    affect_symptom_divergence: bool | None
+
+
 def sentiment_features(
     provider: SentimentProvider | None, text: str, evidence, item_id
-):
+) -> SentimentFeatures:
     try:
         result = provider.predict(text) if provider is not None else None
         if not isinstance(result, SentimentResult):
@@ -49,12 +54,12 @@ def sentiment_features(
     except Exception:
         result = SentimentResult("unavailable", None, "unavailable")
     candidate = evaluate_candidate(evidence, item_id).value
-    mismatch = None
+    affect_symptom_divergence = None
     if candidate is not None and result.polarity in {"positive", "neutral", "negative"}:
-        mismatch = (candidate == 0 and result.polarity == "negative") or (
-            candidate > 0 and result.polarity in {"neutral", "positive"}
-        )
-    return result, mismatch
+        affect_symptom_divergence = (
+            candidate == 0 and result.polarity == "negative"
+        ) or (candidate > 0 and result.polarity in {"neutral", "positive"})
+    return SentimentFeatures(result, affect_symptom_divergence)
 
 
 @dataclass(frozen=True)

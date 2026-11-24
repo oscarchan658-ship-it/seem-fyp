@@ -3,6 +3,9 @@ from unittest.mock import Mock
 
 import pytest
 
+from controller import dispatch, new_session
+from schemas import Event
+
 from nlu_provider import NluRequest
 from phq8_engine import ConfirmedAnswer, score_phq8
 from research.providers import (
@@ -16,7 +19,7 @@ from rule_nlu import extract
 
 
 @pytest.mark.parametrize(
-    ("polarity", "mismatch"),
+    ("polarity", "divergence"),
     [
         ("positive", True),
         ("neutral", True),
@@ -25,15 +28,24 @@ from rule_nlu import extract
         ("unavailable", None),
     ],
 )
-def test_c07_c16_research_polarity_never_changes_confirmed_score(polarity, mismatch):
+def test_c07_c16_research_polarity_never_changes_confirmed_score(polarity, divergence):
     answers = tuple(ConfirmedAnswer(item, 1) for item in range(1, 9))
     baseline = score_phq8(answers)
     provider = Mock(predict=Mock(return_value=SentimentResult(polarity, None, "mock")))
     result, observed = sentiment_features(
         provider, "synthetic", extract(1, "過去兩週有幾天"), 1
     )
-    assert result.polarity == polarity and observed is mismatch
+    assert result.polarity == polarity and observed is divergence
     assert score_phq8(answers) == baseline
+    state = new_session()
+    for action in ("START", "ACCEPT"):
+        state = dispatch(state, Event(action, state.session_id, state.revision)).state
+    event = Event(
+        "TEXT", state.session_id, state.revision, item_id=1, text="過去兩週有幾天"
+    )
+    expected = dispatch(state, event)
+    sentiment_features(provider, event.text, extract(1, event.text), 1)
+    assert dispatch(state, event) == expected
 
 
 @pytest.mark.parametrize("payload", ["{", "{}", '{"item_id": 2}', "null"])

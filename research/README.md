@@ -1,5 +1,28 @@
 # V3.2 離線研究準備
 
+## Dataset B 人工標註交接
+
+準備兩份獨立來源 JSONL。每行包含 `case_id`、`group_id`、`item_id`、`text`、`source_id`。沿用現有 `source_id` 欄位記錄來源。將同一原句與改寫放入同一 `group_id`。
+
+```text
+python -m research.annotation prepare development.jsonl locked.jsonl sheets
+python -m research.annotation compare development.jsonl sheets/development-a.csv sheets/development-b.csv development-review
+python -m research.annotation compare locked.jsonl sheets/locked-a.csv sheets/locked-b.csv locked-review
+python -m research.annotation freeze development.jsonl locked.jsonl sheets/development-a.csv sheets/development-b.csv development-review/adjudicate.csv sheets/locked-a.csv sheets/locked-b.csv locked-review/adjudicate.csv frozen --validation-groups 4 --seed 42
+```
+
+每位標註者只收到自己的空白評分欄。鎖定集評分表由資料管理人保管。填寫 `gold_frequency`（0–3 或 `unresolved`）、`ambiguity`（`none`、`ambiguous_frequency`、`uncertain`、`contradiction`、`off_topic`）及 `timeframe`（`past_14_days`、`missing`、`other`、`unclear`）。`compare` 產出 κ、頻率 weighted κ、有序標註配對數、列聯表及分歧列。兩位對任何欄位有分歧時，由裁決人填寫三項最終標籤及 `annotation_ref`；一致項沿用雙人標籤並保存來源表雜湊。上例的 validation group 數與 seed 是用法示例，以團隊核定值執行。
+
+`freeze` 輸出 development train、validation、locked evaluation 三份 JSONL 及 SHA256 manifest。輸出資料夾須使用新名稱。以相同案例、裁決資料、seed 與群組數重現相同檔案；保存原始標註表，不把受限輸入或標註表提交至 repo。
+
+## E3 人工 Oracle 交接
+
+```text
+python -m research.follow_up_oracle oracle.json --formal
+```
+
+JSON 頂層為案例陣列。每案提供 `case_id`、`author_ref`、`item_id`、`initial_answer`、`system_clarification`、`gold_frequency` 及 `branches`。每分支填 `turn`、`action_id`、`outcome`、`text`。同案以不同 action ID 區分分支，至少有一個 `reply` 和一個 `unresolved` 或 `refusal`。後兩者的 `text` 為 null。工具驗證 24–32 案及結構並產生檔案雜湊。正式跑批還須凍結同一模型的各分支預測及確認回應。
+
 ## C06 Day-to-Frequency Mapping（待核定）
 
 `nlu_provider.py` 的 `RuleProvider` 只讓明確類別繼承當題過去兩週的時間窗。`recognize_days` 在同一題且已追問過去兩週頻率時，可識別「Around five days」為約略五天。B1 分支已接入互動 Controller；天數不產生頻率候選，畫面繼續澄清。
