@@ -8,6 +8,7 @@ import math
 import platform
 import subprocess
 import tracemalloc
+from datetime import UTC, datetime
 from importlib.metadata import version
 from pathlib import Path
 from time import perf_counter_ns
@@ -53,9 +54,15 @@ def main():
     warm = sorted(row["latency_ms"] for row in rows[1:] if row["state"] == "pass")
     digest = hashlib.sha256(request.text.encode()).hexdigest()
     sha = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+    dirty = bool(
+        subprocess.check_output(["git", "status", "--porcelain"], text=True).strip()
+    )
     metadata = {
         "experiment_id": f"rule-synthetic-{sha[:8]}-{digest[:8]}",
         "git_sha": sha,
+        "worktree_dirty": dirty,
+        "executed_at_utc": datetime.now(UTC).isoformat(),
+        "timing_method": "perf_counter_ns with tracemalloc active",
         "fixture_sha256": digest,
         "model": model_version,
         "environment": platform.platform(),

@@ -1,20 +1,25 @@
 """Paired group resampling and annotation agreement for frozen evaluations."""
 
 import random
+from math import isfinite
 
 
 def paired_bootstrap(groups, metric, *, repetitions=2000, seed=42):
     """Each group holds aligned (gold, prediction_a, prediction_b) rows."""
     if not groups or type(repetitions) is not int or repetitions < 2:
         raise ValueError("Bootstrap requires groups and at least two draws.")
-    clusters = tuple(tuple(rows) for rows in groups.values())
+    clusters = tuple(tuple(groups[key]) for key in sorted(groups))
     if any(not group for group in clusters):
         raise ValueError("Empty bootstrap group.")
 
     def difference(draw):
         gold, first, second = zip(*(row for group in draw for row in group))
         a, b = metric(gold, first), metric(gold, second)
-        return None if a is None or b is None else a - b
+        return (
+            None
+            if a is None or b is None or not isfinite(a) or not isfinite(b)
+            else a - b
+        )
 
     rng = random.Random(seed)
     values = [
@@ -23,7 +28,7 @@ def paired_bootstrap(groups, metric, *, repetitions=2000, seed=42):
     valid = sorted(value for value in values if value is not None)
     bounds = (
         None
-        if not valid
+        if len(clusters) < 2 or len(valid) < 2
         else (
             valid[int((len(valid) - 1) * 0.025)],
             valid[int((len(valid) - 1) * 0.975)],

@@ -3,6 +3,7 @@
 import json
 from collections.abc import Callable
 from dataclasses import dataclass
+from math import isfinite
 from typing import Literal, Protocol
 
 from evidence_manager import evaluate_candidate
@@ -84,6 +85,17 @@ def run_structured(request: NluRequest, transport: Callable, *, timeout=10, atte
             continue
         if not isinstance(response, TransportReply):
             return ProviderRun(None, "invalid_response", attempt, tuple(usage))
+        if any(
+            value is not None and (type(value) is not int or value < 0)
+            for value in (response.input_tokens, response.output_tokens)
+        ):
+            return ProviderRun(None, "invalid_usage", attempt, tuple(usage))
+        if response.cost is not None and (
+            type(response.cost) not in {int, float}
+            or not isfinite(response.cost)
+            or response.cost < 0
+        ):
+            return ProviderRun(None, "invalid_usage", attempt, tuple(usage))
         usage.append((response.input_tokens, response.output_tokens, response.cost))
         try:
             candidate = validate_nlu(json.loads(response.payload), request.item_id)

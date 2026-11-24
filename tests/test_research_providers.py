@@ -68,3 +68,8 @@ def test_c21_hand_calculated_agreement_and_paired_resampling():
         return sum(a == b for a, b in zip(gold, predicted)) / len(gold)
 
     assert paired_bootstrap(groups, accuracy, repetitions=20) == (1, (1, 1), 0)
+    assert paired_bootstrap({"a": groups["a"]}, accuracy, repetitions=20) == (
+        1,
+        None,
+        0,
+    )

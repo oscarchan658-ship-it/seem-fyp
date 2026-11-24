@@ -151,14 +151,24 @@ def simulate(
 
 
 def replay_questionnaire(
-    items, policy, *, batch_reply=None, threshold=None, max_clarifications=2
+    items, policy, *, batch_oracle=None, threshold=None, max_clarifications=2
 ):
     """Items map each item ID to (case ID, initial prediction, gold, oracle)."""
     if set(items) != set(range(1, 9)) or any(type(item) is not int for item in items):
         raise ValueError("Expected eight unique questionnaire items.")
     batch = policy in {"P1", "P2"}
-    if batch_reply is not None and not batch:
+    if batch_oracle is not None and not batch:
         raise ValueError("A batch reply is only valid for a batch policy.")
+    if (
+        len(
+            {
+                (initial.provider, initial.payload.get("model_version"))
+                for _, initial, _, _ in items.values()
+            }
+        )
+        != 1
+    ):
+        raise ValueError("A questionnaire must use one provider and model version.")
     replays = {
         item: simulate(
             case_id,
@@ -183,9 +193,22 @@ def replay_questionnaire(
         for row in replays.values()
         for step in row.trace
     )
+    batch_status = "not_attempted"
     if batch and all(row.outcome == "ready_for_batch" for row in replays.values()):
         confirmations = 1
-        confirmed = {} if batch_reply is None else dict(batch_reply)
+        snapshot = tuple(row.candidate for row in replays.values())
+        if batch_oracle is None or snapshot not in batch_oracle:
+            batch_status = "missing_branch"
+        else:
+            reply = batch_oracle[snapshot]
+            if not isinstance(reply, Mapping):
+                raise ValueError(
+                    "Batch confirmation must be a mapping of unique item IDs."
+                )
+            confirmed = dict(reply)
+            batch_status = (
+                "confirmed" if confirmed.keys() == items.keys() else "unresolved"
+            )
     result = None
     if confirmed.keys() == items.keys():
         result = score_phq8(
@@ -202,4 +225,26 @@ def replay_questionnaire(
         if result is not None and None not in gold
         else None
     )
-    return replays, confirmed, result, confirmations, error
+    return replays, confirmed, result, confirmations, error, batch_status
+
+
+def compare_questionnaire(items, batch_oracle, *, threshold, max_clarifications=2):
+    """Evaluate P0–P3 with the same frozen input, scripts and clarification budget."""
+    frozen = {
+        item: (case_id, initial, gold, dict(oracle))
+        for item, (case_id, initial, gold, oracle) in items.items()
+    }
+    batch = {
+        key: dict(reply) if isinstance(reply, Mapping) else reply
+        for key, reply in batch_oracle.items()
+    }
+    return {
+        policy: replay_questionnaire(
+            frozen,
+            policy,
+            batch_oracle=batch if policy in {"P1", "P2"} else None,
+            threshold=threshold,
+            max_clarifications=max_clarifications,
+        )
+        for policy in ("P0", "P1", "P2", "P3")
+    }

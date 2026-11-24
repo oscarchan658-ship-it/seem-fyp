@@ -99,12 +99,24 @@ def test_c19_batch_and_item_confirmation_use_distinct_action_counts():
         )
         for item in range(1, 9)
     }
+    snapshot = (1,) * 8
     batch_reply = {item: 2 for item in items}
-    assert replay_questionnaire(items, "P2", threshold=0.8)[2] is None
-    assert (
-        replay_questionnaire(items, "P2", threshold=0.8, batch_reply={1: 2})[2] is None
+    missing = replay_questionnaire(items, "P2", threshold=0.8)
+    assert missing[2] is None and missing[-1] == "missing_branch"
+    partial = replay_questionnaire(
+        items, "P2", threshold=0.8, batch_oracle={snapshot: {1: 2}}
     )
-    batch = replay_questionnaire(items, "P2", threshold=0.8, batch_reply=batch_reply)
+    assert partial[2] is None and partial[-1] == "unresolved"
+    batch = replay_questionnaire(
+        items, "P2", threshold=0.8, batch_oracle={snapshot: batch_reply}
+    )
     item = replay_questionnaire(items, "P3", threshold=0.8)
     assert batch[2].total == item[2].total == 16
-    assert batch[3:] == (1, 0) and item[3:] == (8, 0)
+    assert batch[3:] == (1, 0, "confirmed") and item[3:] == (8, 0, "not_attempted")
+    with pytest.raises(ValueError, match="unique item IDs"):
+        replay_questionnaire(
+            items,
+            "P2",
+            threshold=0.8,
+            batch_oracle={snapshot: [(1, 0), *batch_reply.items()]},
+        )
