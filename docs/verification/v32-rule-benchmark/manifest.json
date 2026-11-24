@@ -1,0 +1,16 @@
+{
+  "experiment_id": "rule-synthetic-b30c824f-e1e9d94f",
+  "git_sha": "b30c824f76dd4a539081261e1eb235e0a3cb2878",
+  "worktree_dirty": false,
+  "executed_at_utc": "2026-11-24T04:19:10.475153+00:00",
+  "timing_method": "perf_counter_ns with tracemalloc active",
+  "fixture_sha256": "e1e9d94f978f505c571a4ebc4a938040b8902298eefdafa905ab176548c21b09",
+  "model": "context-rule-zh-hant-v1",
+  "environment": "Windows-11-10.0.26200-SP0",
+  "python": "3.12.14",
+  "streamlit": "1.67.0",
+  "fixture": "one synthetic response",
+  "warm_successes": 30,
+  "failures": 0,
+  "warm_p95_ms": 0.0247
+}
