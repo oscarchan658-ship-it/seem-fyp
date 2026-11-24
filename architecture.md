@@ -15,7 +15,7 @@
 | §V-B 列測試類別，部分情境缺少可執行的預期結果。§VIII-D 提及真實模型整合，§XI 容許 Mock。 | 補上固定輸入、判定及驗證紀錄。第一期依賴本地規則與合成 fixtures。組員的 API 屬後續可替換介面，無需等待資料授權、模型或網路。 |
 | §IV-B 只寫「預設不持久化」，未列 Streamlit 重跑、日誌與分頁的資料邊界。 | 只在該 Streamlit 會話記憶體保留必要狀態。自由文字只在單次事件處理時使用，提交後移除輸入 widget 值。兩個會話互相隔離。 |
 
-已查看 V3.1 文字、表格及兩張內嵌圖。本文件描述 GitHub repo 內的合成原型接口。正式題幹、真實訊號規則與支援文案待審。
+本文件記錄 V3.1 設計決策及 V3.2 已合併的合成原型介面。正式題幹、真實訊號規則與支援文案待審。 [交付現況](docs/verification/v32-delivery.md)
 
 ## 資料流
 
@@ -27,7 +27,7 @@ flowchart LR
     G -->|review / interrupt / 故障| S[暫停與固定回應]
     G -->|normal| N[一般事件處理]
     C -->|結構化按鈕事件，受狀態與版本限制| N
-    N -->|當前題目文字| U[Rule NLU]
+    N -->|當前題目文字| U[NLUProvider]
     U --> P[候選驗證與澄清規則]
     P --> R[暫存與批次核對]
     N -->|頻率選項| R
@@ -38,7 +38,7 @@ flowchart LR
 
 ## 模組介面
 
-| 模組與擁有人 | 提案接口 | 輸入、輸出與錯誤語意 |
+| 模組與擁有人 | 介面 | 輸入、輸出與錯誤語意 |
 |---|---|---|
 | `schemas.py`（WP01） | `validate_nlu(payload: Mapping[str, object], expected_item: int) -> NluResult` | 共用型別如下。非法結構或錯題拋 `ValueError`，控制器轉結構化選項回退。反序列化與評分邊界均需驗證。 |
 | `phq8_engine.py`（WP03） | `score_phq8(confirmed: Sequence[ConfirmedAnswer]) -> Phq8Result` | 純函式。要求恰好八個唯一且完整的題號 1–8，分值為 0–3 的嚴格整數。缺漏、重複、額外題、未確認型別或非法值均拋 `ValueError`，無部分結果。 |
@@ -46,9 +46,12 @@ flowchart LR
 | `controller.py`（WP04） | `new_session() -> SessionState`、`dispatch(state: SessionState, event: Event) -> Transition` | 單一轉移入口，外部 Guard 與 NLU 可用替身注入。先驗證會話 ID；同會話活動狀態的文字先執行 Guard（優先於版本、題號與一般處理）；再驗證版本、事件與題號，最後處理狀態。回傳新快照、畫面回應碼與不含文字的轉移摘要。非法事件保留原狀，回傳拒絕碼。 |
 | `rule_nlu.py`（WP05） | `extract(item_id: int, text: str) -> NluResult` | 只解析指定題目。清楚且符合兩週的頻率可回候選分值。詞彙範圍外、模糊、矛盾、時間缺失時必須拒答。 |
 | Evidence Manager（C08） | `evaluate_candidate(payload, expected_item) -> CandidateDecision` | 驗證 schema、當前題目、時間、否定與矛盾，回傳可空候選及原因碼。無合規候選便澄清，信心資料沒有覆蓋硬規則的權限。 |
+| `nlu_provider.py`（C06） | `NLUProvider.predict(request: NluRequest) -> NluResult` | 當題文字、題目時間窗與可選澄清上下文。預設 RuleProvider 可讓明確頻率類別繼承當題兩週時間窗。R1 天數轉頻率待核定。 |
+| `app.py`（WP06） | `streamlit run app.py` | UI 透過 `dispatch` 送出事件，並以 `st.session_state` 保存該會話的最新快照。按鈕事件在當輪文字回呼後處理，使同批已收到的文字先過 Guard。 |
 
 V3.2 接線維持 UI → Controller。Controller 先處理會話及 Guard，再呼叫 `NLUProvider.predict(request)` 和 Evidence Manager。評分引擎只讀八個確認答案。Controller 在澄清期間只保存題號，換題、退出編輯、取消、中斷及重設會清除。天數轉頻率待核定。
-| `app.py`（WP06） | `streamlit run app.py` | 將文字或操作送到 `dispatch`，以 `st.session_state` 保存最新快照，根據狀態呈現 consent、題目、澄清、核對、結果或中斷文案。表單提交才送事件，顯示重跑不重送。畫面不得直接寫入答案、判斷危機或計分。 |
+
+P0–P3、情緒特徵與評估指標由離線研究工具處理。互動原型以保守規則回退並採批次確認。 [研究工具](research/README.md)
 
 資料型別與 JSON 邊界規格（WP01）
 

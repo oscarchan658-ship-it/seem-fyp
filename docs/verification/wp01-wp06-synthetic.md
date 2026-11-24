@@ -78,4 +78,4 @@
 
 [C01 合成結果](c01-result.png) · [C01 模擬中斷](c01-interruption.png)
 
-C02 仍待人工審查及批准。T21／T22 正式規則驗收仍待核定；本紀錄只驗證 MOCK 接線。
+C02 已獲批准並合併。T21／T22 的正式 Guard 規則仍待核定；本紀錄的結果涵蓋 MOCK 接線。 [PR #3](https://github.com/oscarchan658-ship-it/seem-fyp/pull/3) · [目前驗收狀態](v32-delivery.md)

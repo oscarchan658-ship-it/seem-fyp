@@ -2,6 +2,8 @@
 
 本機合成資料研究原型，涵蓋 WP01、WP03、WP04、WP05 的規則版本及 WP06。量表題幹是繁體中文待審譯稿，守門規則與中斷文案只用於測試流程。請只輸入虛構資料。
 
+V3.2 的 PR #3–#8 已合併。已驗證的 `main` 提交為 `502a86d`，合併後 GitHub CI 通過。Dataset B 盲標、裁決、凍結工具與 E3 Oracle 驗證器已可使用。 [V3.2 交付與驗收現況](docs/verification/v32-delivery.md)
+
 ## 執行
 
 在 repo 根目錄以 Python 3.12 執行。建議先建立及啟用虛擬環境。
@@ -35,6 +37,7 @@ python -m pytest -q --cov=. --cov-report=term-missing
 - [架構與模組介面](architecture.md)
 - [需求與驗收矩陣](requirements.md)
 - [規則 NLU 合約](nlp_contract.md)
+- [Dataset B、E3 Oracle 與離線工具操作](research/README.md)
 - [合成原型驗收與截圖](docs/verification/wp01-wp06-synthetic.md)
 
 正式題幹、目標語言、Guard 規則及支援文案須由團隊與相關審閱者核定。原型結果只支持合成情境中的軟體行為驗證。

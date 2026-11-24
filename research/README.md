@@ -1,5 +1,7 @@
 # V3.2 離線研究準備
 
+標註與 Oracle 工具隨 PR #8 進入 `main`。合成演練已驗證盲標表、分歧比較、裁決、凍結及輸出 SHA256。正式 Dataset B、人工 Oracle 及核定模型設定仍需團隊提供。 [實測版本與待核定項目](../docs/verification/v32-delivery.md)
+
 ## Dataset B 人工標註交接
 
 準備兩份獨立來源 JSONL。每行包含 `case_id`、`group_id`、`item_id`、`text`、`source_id`。沿用現有 `source_id` 欄位記錄來源。將同一原句與改寫放入同一 `group_id`。
