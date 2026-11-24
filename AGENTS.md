@@ -1,6 +1,6 @@
 # Sentiment Analysis for Depression Detection
 
-- 保留以上核准題目。以 Master Plan V3.1（本機原檔 `FYP_Research_and_Implementation_Master_Plan_V3_1.docx`） 為基線。先讀 [架構與介面](architecture.md)、[需求與驗收](requirements.md)及[實作計劃](docs/superpowers/plans/2026-11-23-fyp-systems-integration.md)。新提案應標記批准狀態，遇到來源衝突先記錄並澄清。
+- 保留以上核准題目。以 Master Plan V3.1（本機原檔 `FYP_Research_and_Implementation_Master_Plan_V3_1.docx`）為歷史基線。先讀 [V3.2 交付現況](docs/verification/v32-delivery.md)、[架構與介面](architecture.md)及[需求與驗收](requirements.md)。新提案標記核定狀態，遇到來源衝突先記錄並澄清。
 - Systems Engineering & Integration 負責 WP01、WP03、WP04、WP05 的規則／Mock、WP06 及相應驗收。進階 NLU、sentiment 訓練和資料集研究屬其他工作包。保持模型可替換，第一期以本地規則／Mock 驗收。
 - 使用 Python、pytest、Streamlit。實作前先檢查 Git 根目錄、既有入口、測試、依賴與相關呼叫，沿用 repo 慣例。採 Ponytail full mode，寫最小完整改動，重要邏輯須有可執行測試。依實作計劃分批落實及驗收。
 - 分數只來自用戶明確確認的八個唯一題目。只接受 0–3 嚴格整數。缺答、無法解析、未確認、重複題均無結果。Sentiment、NLU 信心及危機決策不得作為分值或補答來源。

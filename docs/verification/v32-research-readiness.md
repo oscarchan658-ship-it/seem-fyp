@@ -1,5 +1,7 @@
 # V3.2 研究準備與待審證據
 
+PR #3–#8 已合併。下文按各實測版本保留歷史證據，最新整體狀態見 [V3.2 交付與驗收](v32-delivery.md)。
+
 ## C24 FMEA 初稿
 
 分級先按影響排序。H 為提前／錯誤計分或中斷被繞過，M 為研究結果失真、流程停滯或人工重做。發生率與可檢知性保留未知，待團隊核定量尺及實測資料。下列關係用於安排測試。
@@ -16,7 +18,7 @@
 
 | 任務 | 證據 | 範圍與外部前置條件 |
 |---|---|---|
-| C01／C02 | [PR #3 驗收與審查](https://github.com/oscarchan658-ship-it/seem-fyp/pull/3) | 實跑證據附 PR，合併待人工批准 |
+| C01／C02 | [PR #3 驗收與審查](https://github.com/oscarchan658-ship-it/seem-fyp/pull/3) | 合成實跑證據已記錄，PR 已合併 |
 | C03／C04 | [品質工作與需求追蹤](https://github.com/oscarchan658-ship-it/seem-fyp/pull/4) | 分支測試和覆蓋率記錄留在 PR |
 | C06、C11、C12、C17、C19 | [工具命令、資料合約及限制](../../research/README.md) | 本地合成準備。映射、雙人標註與資料凍結、Empirical E1 及完整政策比較尚未驗收 |
 | C23／C27 | `tests/test_fault_injection.py` 與既有 Guard／FSM 測試 | 模擬失效及狀態回退；正式 Guard 仍待審 |

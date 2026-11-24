@@ -2,14 +2,16 @@
 
 ## V3.2 驗收與交付清單
 
+截至 2026-11-25，PR #3–#8 均已合併，驗證基線為 `main` 的 `502a86df8078e6453652beed3073f7e59c0546bf`。PR #8 合併前，Windows 全套 pytest **149 項通過**。合併提交的 GitHub CI 亦通過，包含 Ruff、格式檢查及完整測試。 [PR #8](https://github.com/oscarchan658-ship-it/seem-fyp/pull/8) · [main CI](https://github.com/oscarchan658-ship-it/seem-fyp/actions/runs/45369762092)
+
 | 任務 | 可查證交付 | 剩餘門檻 |
 |---|---|---|
 | C01–C02 | [已合併的 PR #3](https://github.com/oscarchan658-ship-it/seem-fyp/pull/3)和[瀏覽器紀錄](wp01-wp06-synthetic.md) | 快速輸入的框架送達限制已記錄 |
-| C03–C04 | [品質與追蹤 PR #4](https://github.com/oscarchan658-ship-it/seem-fyp/pull/4) | 人工審查及合併 |
-| C05–C06、C08、C10 | [Controller 與驗證 PR #6](https://github.com/oscarchan658-ship-it/seem-fyp/pull/6)及離線確認回放 | PR 審查及天數映射核定 |
+| C03–C04 | 品質與追蹤已合併。 [PR #4](https://github.com/oscarchan658-ship-it/seem-fyp/pull/4) | 持續隨新需求更新追蹤證據 |
+| C05–C06、C08、C10 | Controller 與證據驗證已合併，具離線確認回放。 [PR #6](https://github.com/oscarchan658-ship-it/seem-fyp/pull/6) | R1 天數映射待核定 |
 | C07、C16 | 離線情緒介面、研究錯配標記、失效處理和評分測試 | 組員模型版本及特徵輸出規格 |
-| C09、C19 | 離線 P0–P3、八題回放、批次候選快照 Oracle、缺分支與未解決狀態 | 定稿正式案例、追問及確認分支 |
-| C11–C12 | [Dataset B 驗證與 Rule runner](v32-research-readiness.md)；合成 CSV 已測 | 核定樣本量、主要分組、盲標裁決及鎖定集 |
+| C09、C19 | 離線 P0–P3、八題回放、批次候選快照 Oracle、缺分支與未解決狀態。人工情境驗證器已合併 | 收集並凍結 24–32 個人工情境、追問及確認分支 |
+| C11–C12 | Dataset B 盲標、κ／weighted κ、裁決、群組凍結及 Rule runner 已合併，合成命令列演練通過。 [工具及流程](../../research/README.md) | 核定樣本量與主要分組，完成正式雙人盲標、裁決及鎖定集 |
 | C13–C15 | C14 的 MOCK JSON 傳輸、結構拒絕、有限重試及用量驗證。C15 已測缺失信心、閾值及硬性衝突 | NLI 模型／模板、各模型信心定義、LLM 服務及成本核定 |
 | C17–C18 | S／N／F Engineering Smoke Test 和 Rule 管線驗證 | Empirical E1 的 Dataset A 授權與標籤；正式 E2 的鎖定資料及全部模型輸出 |
 | C20–C22 | 風險覆蓋、閾值、觀測範圍 AURC、配對群組 bootstrap 和 κ 均有測例；本機基準 manifest 有實際 SHA、時間和環境 | 正式資料與實驗設定後才可生成實證曲線及重現報告 |
