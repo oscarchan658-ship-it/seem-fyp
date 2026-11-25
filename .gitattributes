@@ -1,2 +1,2 @@
 # Preserve measured evidence bytes so recorded SHA256 values survive checkout.
-docs/verification/nov25-rehearsal/** -text
+docs/verification/nov25-rehearsal/** -text whitespace=cr-at-eol
