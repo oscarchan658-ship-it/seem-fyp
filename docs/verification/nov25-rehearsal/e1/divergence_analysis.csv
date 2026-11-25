@@ -1,0 +1,7 @@
+﻿arm,divergence,count,errors,macro_f1
+S,False,4,0,1.0
+S,True,0,0,
+N,False,4,0,1.0
+N,True,0,0,
+F,False,4,0,1.0
+F,True,0,0,

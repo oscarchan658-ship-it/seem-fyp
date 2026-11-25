@@ -1,0 +1,16 @@
+{"participant_id": "fixture-p0", "case_id": "fixture-p0", "split": "train", "target": 0, "sentiment_features": [0.0], "context_features": [1.0], "divergence": false}
+{"participant_id": "fixture-p1", "case_id": "fixture-p1", "split": "train", "target": 1, "sentiment_features": [1.0], "context_features": [0.0], "divergence": false}
+{"participant_id": "fixture-p2", "case_id": "fixture-p2", "split": "train", "target": 0, "sentiment_features": [0.0], "context_features": [1.0], "divergence": false}
+{"participant_id": "fixture-p3", "case_id": "fixture-p3", "split": "train", "target": 1, "sentiment_features": [1.0], "context_features": [0.0], "divergence": false}
+{"participant_id": "fixture-p4", "case_id": "fixture-p4", "split": "train", "target": 0, "sentiment_features": [0.0], "context_features": [1.0], "divergence": false}
+{"participant_id": "fixture-p5", "case_id": "fixture-p5", "split": "train", "target": 1, "sentiment_features": [1.0], "context_features": [0.0], "divergence": false}
+{"participant_id": "fixture-p6", "case_id": "fixture-p6", "split": "train", "target": 0, "sentiment_features": [0.0], "context_features": [1.0], "divergence": false}
+{"participant_id": "fixture-p7", "case_id": "fixture-p7", "split": "train", "target": 1, "sentiment_features": [1.0], "context_features": [0.0], "divergence": false}
+{"participant_id": "fixture-p8", "case_id": "fixture-p8", "split": "validation", "target": 0, "sentiment_features": [0.0], "context_features": [1.0], "divergence": false}
+{"participant_id": "fixture-p9", "case_id": "fixture-p9", "split": "validation", "target": 1, "sentiment_features": [1.0], "context_features": [0.0], "divergence": false}
+{"participant_id": "fixture-p10", "case_id": "fixture-p10", "split": "validation", "target": 0, "sentiment_features": [0.0], "context_features": [1.0], "divergence": false}
+{"participant_id": "fixture-p11", "case_id": "fixture-p11", "split": "validation", "target": 1, "sentiment_features": [1.0], "context_features": [0.0], "divergence": false}
+{"participant_id": "fixture-p12", "case_id": "fixture-p12", "split": "test", "target": 0, "sentiment_features": [0.0], "context_features": [1.0], "divergence": false}
+{"participant_id": "fixture-p13", "case_id": "fixture-p13", "split": "test", "target": 1, "sentiment_features": [1.0], "context_features": [0.0], "divergence": false}
+{"participant_id": "fixture-p14", "case_id": "fixture-p14", "split": "test", "target": 0, "sentiment_features": [0.0], "context_features": [1.0], "divergence": false}
+{"participant_id": "fixture-p15", "case_id": "fixture-p15", "split": "test", "target": 1, "sentiment_features": [1.0], "context_features": [0.0], "divergence": false}

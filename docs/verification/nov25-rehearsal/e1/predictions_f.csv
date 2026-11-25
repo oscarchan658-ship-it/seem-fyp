@@ -1,0 +1,5 @@
+﻿case_id,participant_id,target,score,prediction,divergence
+fixture-p12,fixture-p12,0,0.4807787077893918,0,False
+fixture-p13,fixture-p13,1,0.5192212922106082,1,False
+fixture-p14,fixture-p14,0,0.4807787077893918,0,False
+fixture-p15,fixture-p15,1,0.5192212922106082,1,False

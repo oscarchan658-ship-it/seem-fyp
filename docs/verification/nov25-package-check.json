@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "implementation_git_sha": "e10f23d62ec4e827271b152fbac178b547807c49",
+  "cases": 96,
+  "categories": 12,
+  "items": 8,
+  "development": 64,
+  "locked": 32,
+  "annotator_a_rows": 96,
+  "annotator_b_rows": 96,
+  "gold_columns": "ALL BLANK",
+  "files_hash_verified": 14,
+  "semantic_review": "PENDING HUMAN"
+}

@@ -1,0 +1,4 @@
+{"case_id": "fixture-0", "group_id": "fixture-group-0", "item_id": 1, "text": "過去兩週完全沒有", "gold_frequency": 0, "ambiguity": "none", "timeframe": "past_14_days", "source_id": "SEPARATE_ENGINEERING_FIXTURE", "annotation_ref": "SELF_CHECK_ONLY"}
+{"case_id": "fixture-1", "group_id": "fixture-group-1", "item_id": 1, "text": "過去兩週有幾天", "gold_frequency": 1, "ambiguity": "none", "timeframe": "past_14_days", "source_id": "SEPARATE_ENGINEERING_FIXTURE", "annotation_ref": "SELF_CHECK_ONLY"}
+{"case_id": "fixture-2", "group_id": "fixture-group-2", "item_id": 1, "text": "過去兩週超過一半的日子", "gold_frequency": 2, "ambiguity": "none", "timeframe": "past_14_days", "source_id": "SEPARATE_ENGINEERING_FIXTURE", "annotation_ref": "SELF_CHECK_ONLY"}
+{"case_id": "fixture-3", "group_id": "fixture-group-3", "item_id": 1, "text": "過去兩週幾乎每天", "gold_frequency": 3, "ambiguity": "none", "timeframe": "past_14_days", "source_id": "SEPARATE_ENGINEERING_FIXTURE", "annotation_ref": "SELF_CHECK_ONLY"}
