@@ -1,5 +1,9 @@
 # V3.2 離線研究準備
 
+## 2026-11-25 Research Sprint
+
+新 Sprint 嘅 R1、隱藏集別盲標、coverage-aware 分割、E2a／E2b、E3 及 E1 命令見 [可重現操作與交接](../docs/reproducibility/research-sprint.md)。下文保留舊版交接介面及歷史待核定說明，新 Sprint 以新操作文件同 [五日實作計劃](../docs/superpowers/plans/2026-11-25-fyp-research-sprint.md) 為準。
+
 ## Dataset B 人工標註交接
 
 準備兩份獨立來源 JSONL。每行包含 `case_id`、`group_id`、`item_id`、`text`、`source_id`。沿用現有 `source_id` 欄位記錄來源。將同一原句與改寫放入同一 `group_id`。

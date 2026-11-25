@@ -1,0 +1,13 @@
+failure_mode,effect,evidence_source,severity,occurrence,detectability,mitigation,approval_status
+NLI unavailable,Question unresolved,tests/test_experiment_runners.py,,,,Abstain and keep item unconfirmed,PENDING_HUMAN_RATING
+LLM timeout,Question unresolved,tests/test_experiment_runners.py,,,,Enforce local worker wall-clock timeout,PENDING_HUMAN_RATING
+Malformed JSON,Invalid candidate,tests/test_research_providers.py,,,,Validate structured output and abstain,PENDING_HUMAN_RATING
+Missing confidence,Threshold policy cannot accept,tests/test_evaluation.py,,,,Keep hard rules and require usable confidence,PENDING_HUMAN_RATING
+Stale event,Old answer or confirmation,tests/test_controller.py,,,,Session and revision checks,PENDING_HUMAN_RATING
+Duplicate confirmation,Repeated scoring,tests/test_controller.py,,,,Consume current confirmation snapshot once,PENDING_HUMAN_RATING
+Reset during clarification,Loss or reuse of partial state,tests/test_b1_context.py,,,,Reject unsupported reset and clear context on authorized lifecycle transitions,PENDING_HUMAN_RATING
+Incomplete Oracle,Biased policy comparison,tests/test_e3_runner.py,,,,Report missing branch separately,PENDING_HUMAN_RATING
+Sentiment unavailable,Research features unavailable,tests/test_research_providers.py,,,,Sentiment failure leaves PHQ scoring independent,PENDING_HUMAN_RATING
+Day score zero conflated with symptom absence,Wrong provisional eligibility,tests/test_day_mapping.py,,,,Verify local interval and separate symptom fact from frequency category,PENDING_HUMAN_RATING
+Gold rebound to edited reply,Invalid research evidence,tests/test_handoff.py,,,,Verify published author and immutable visible-sheet hashes,PENDING_HUMAN_RATING
+Model threshold mismatch,Invalid selective-risk estimate,tests/test_oracle_predictions.py,,,,Bind frozen prediction manifest config and Validation threshold signatures,PENDING_HUMAN_RATING

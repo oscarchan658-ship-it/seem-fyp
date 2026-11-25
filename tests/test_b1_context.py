@@ -12,7 +12,7 @@ def send(state, kind, **payload):
     return dispatch(state, Event(kind, state.session_id, state.revision, **payload))
 
 
-def test_c06_context_does_not_map_days_and_accepts_explicit_frequency():
+def test_c06_context_maps_approved_days_only_after_clarification():
     state = send(send(new_session(), "START").state, "ACCEPT").state
     state = send(state, "SELECT", item_id=1, value=0).state
     state = send(state, "SELECT", item_id=2, value=0).state
@@ -21,10 +21,12 @@ def test_c06_context_does_not_map_days_and_accepts_explicit_frequency():
     ).state
     assert state.clarification_item_id == 3
     out = send(state, "TEXT", item_id=3, text="Around five days")
-    assert out.response_code == "clarify" and out.evidence_reason == "uncertain"
-    assert out.state.provisional_answers == {1: 0, 2: 0} and out.state.result is None
+    assert out.response_code == "question"
+    assert (
+        out.state.provisional_answers == {1: 0, 2: 0, 3: 1} and out.state.result is None
+    )
     assert "Around five days" not in repr(out)
-    state = send(out.state, "TEXT", item_id=3, text="有幾天").state
+    state = out.state
     assert state.item_id == 4 and state.provisional_answers == {1: 0, 2: 0, 3: 1}
     assert state.clarification_item_id is None and not state.confirmed_answers
     assert send(state, "TEXT", item_id=4, text="只限上星期有幾天").state.item_id == 4

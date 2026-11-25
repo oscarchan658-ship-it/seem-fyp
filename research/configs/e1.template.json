@@ -1,0 +1,9 @@
+{
+  "mode": "empirical",
+  "dataset_authorized": false,
+  "dataset_version": "",
+  "target_definition": "",
+  "model_family": "L2 logistic regression",
+  "primary_comparison": "F-N",
+  "seed": 42
+}

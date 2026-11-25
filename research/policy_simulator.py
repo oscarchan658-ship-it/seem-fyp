@@ -1,13 +1,13 @@
 """Replay a single questionnaire item using frozen predictions and scripted replies."""
 
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from types import MappingProxyType
 from typing import Literal
 
 from evidence_manager import assess_candidate
 from phq8_engine import ConfirmedAnswer, score_phq8
-from schemas import validate_nlu
+from schemas import LocalDayResult, validate_nlu
 
 P0_LABEL = "No-clarification model baseline"
 
@@ -16,10 +16,13 @@ P0_LABEL = "No-clarification model baseline"
 class FrozenPrediction:
     provider: str
     payload: Mapping[str, object]
+    local_interval: tuple | None = field(default=None, init=False)
 
     def __post_init__(self):
         if not self.provider:
             raise ValueError("Missing provider identifier.")
+        if type(self.payload) is LocalDayResult:
+            object.__setattr__(self, "local_interval", self.payload.interval)
         object.__setattr__(self, "payload", MappingProxyType(dict(self.payload)))
 
 
@@ -103,7 +106,12 @@ def simulate(
         ):
             raise ValueError("A policy replay must use one provider and model version.")
         try:
-            candidate = validate_nlu(current.payload, item_id)
+            payload = (
+                LocalDayResult(current.payload, current.local_interval)
+                if current.local_interval is not None
+                else current.payload
+            )
+            candidate = validate_nlu(payload, item_id)
         except ValueError:
             value, reason = None, "invalid_evidence"
         else:

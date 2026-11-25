@@ -1,7 +1,8 @@
 from collections.abc import Mapping
 from dataclasses import dataclass
 
-from schemas import NluResult, validate_nlu
+from schemas import LocalDayResult, NluResult, validate_nlu
+from research.day_mapping import map_days
 
 
 @dataclass(frozen=True)
@@ -22,6 +23,18 @@ def assess_candidate(result: NluResult) -> CandidateDecision:
     value = result["frequency_candidate"]
     if value is None:
         return CandidateDecision(None, "frequency_missing")
+    if type(result) is LocalDayResult:
+        lower, upper = result.interval
+        mapped = map_days(lower, upper)
+        present = False if upper == 0 else True if lower > 0 else None
+        negation = "clear" if upper == 0 else "none"
+        if (
+            mapped != value
+            or result["symptom_present"] is not present
+            or result["negation"] != negation
+        ):
+            return CandidateDecision(None, "inconsistent_day_evidence")
+        return CandidateDecision(value, "eligible")
     expected_negation = "clear" if value == 0 else "none"
     if (
         result["symptom_present"] is not (value > 0)
