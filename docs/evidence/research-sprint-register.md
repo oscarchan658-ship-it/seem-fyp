@@ -32,6 +32,6 @@ Rehearsal嘅16個虛構參與者、四條E2 fixture同一份八題腳本各自�
 
 [交接包實際核對](../verification/nov25-package-check.json) 記錄96案、兩表各96列、12類、8題、全空Gold及14個檔案雜湊核對。[完整工程演練manifest](../verification/nov25-rehearsal/rehearsal_manifest.json) 連到實際CSV、圖及逐案輸出。程式版本為 `e10f23d`。完整 pytest **197 passed**，Ruff、格式及 pip check 通過。獨立審查回歸12項通過，最終未發現剩餘Important問題。
 
-PR推送曾被自動審批拒絕。審批理由為尚未明確授權將這批內容傳送到現有GitHub目的地；已向使用者提出具體目的地批准要求。批准到位前保持本地提交，正式遠端CI記為NOT RUN。
+2026-11-26，使用者明確批准 commit、push 及 merge，覆蓋現有 repo `oscarchan658-ship-it/seem-fyp` 嘅研究分支。先前推送審批阻礙已獲所需授權，遠端 CI 及合併狀態以對應 GitHub PR 實際記錄為準。
 
 命令及配置見 [操作文件](../reproducibility/research-sprint.md)。圖表從逐案CSV重建，對應JSON記錄來源SHA256。每個輸出資料夾使用新名稱，量度每次重跑會產生新時間及記憶體值。
