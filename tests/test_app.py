@@ -25,6 +25,21 @@ def screening():
     return click(click(open_app(), "開始"), "同意並開始")
 
 
+def test_r1_web_one_day_zero_stays_unconfirmed_until_eight_answers():
+    app = screening()
+    app.chat_input[0].set_value("不確定").run()
+    assert app.session_state["dialogue"].phase == "CLARIFICATION"
+    app.chat_input[0].set_value("1 day").run()
+    assert not app.exception
+    assert app.session_state["dialogue"].provisional_answers == {1: 0}
+    assert app.session_state["dialogue"].item_id == 2
+    assert not app.metric and not app.session_state["dialogue"].confirmed_answers
+    for _ in range(7):
+        click(app, "完全沒有")
+    click(app, "確認八題答案並計分")
+    assert app.metric[0].value == "0 / 24"
+
+
 def test_t19_t20_t28_t30_t31_t33_web_review_edit_confirm_and_rerun():
     app = screening()
     assert app.title[0].value == "Sentiment Analysis for Depression Detection"

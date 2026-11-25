@@ -1,0 +1,8 @@
+{
+  "source_file": "results\\engineering-self-check-final\\e1\\metrics.csv",
+  "source_sha256": "b68acc49ab48d865214be91582dd0483101e301ddb664edb37cbd5132b23c1d3",
+  "x": "arm",
+  "y": "macro_f1",
+  "mode": "synthetic",
+  "plotted_rows": 3
+}

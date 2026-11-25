@@ -1,0 +1,5 @@
+﻿case_id,group_id,item_id,gold_frequency,prediction,confidence,gold_ambiguity,ambiguity,reason,error,model_version,runtime_ms
+fixture-0,fixture-group-0,1,0,0,,none,none,eligible,,context-rule-r1-v2,0.13299999955052044
+fixture-1,fixture-group-1,1,1,1,,none,none,eligible,,context-rule-r1-v2,0.03169999945384916
+fixture-2,fixture-group-2,1,2,2,,none,none,eligible,,context-rule-r1-v2,0.014600000213249587
+fixture-3,fixture-group-3,1,3,3,,none,none,eligible,,context-rule-r1-v2,0.012900000001536682

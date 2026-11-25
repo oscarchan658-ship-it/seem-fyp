@@ -1,0 +1,84 @@
+{
+  "config": {
+    "mode": "synthetic",
+    "target_definition": "synthetic self-check binary label",
+    "dataset_version": "engineering-fixture-v1"
+  },
+  "models": {
+    "S": {
+      "family": "L2 logistic regression",
+      "solver": "liblinear",
+      "grid": [
+        0.01,
+        0.1,
+        1,
+        10,
+        100
+      ],
+      "tuning_trials": 5,
+      "selected_c": 0.01,
+      "validation_macro_f1": 1.0,
+      "seed": 42,
+      "threshold": 0.5,
+      "class_weight": null,
+      "tol": 0.0001,
+      "max_iter": 1000
+    },
+    "N": {
+      "family": "L2 logistic regression",
+      "solver": "liblinear",
+      "grid": [
+        0.01,
+        0.1,
+        1,
+        10,
+        100
+      ],
+      "tuning_trials": 5,
+      "selected_c": 0.01,
+      "validation_macro_f1": 1.0,
+      "seed": 42,
+      "threshold": 0.5,
+      "class_weight": null,
+      "tol": 0.0001,
+      "max_iter": 1000
+    },
+    "F": {
+      "family": "L2 logistic regression",
+      "solver": "liblinear",
+      "grid": [
+        0.01,
+        0.1,
+        1,
+        10,
+        100
+      ],
+      "tuning_trials": 5,
+      "selected_c": 0.01,
+      "validation_macro_f1": 1.0,
+      "seed": 42,
+      "threshold": 0.5,
+      "class_weight": null,
+      "tol": 0.0001,
+      "max_iter": 1000
+    }
+  },
+  "primary_comparison": "F-N",
+  "empirical_e1": "NOT RUN",
+  "python": "3.12.14",
+  "participants": 16,
+  "split_counts": {
+    "train": 8,
+    "validation": 4,
+    "test": 4
+  },
+  "source_sha256": "f5daab26179f58b031fec5b9e315ea5c7461e5d633ec8b3e125fe2fdab9e3fb7",
+  "files": {
+    "bootstrap_ci.csv": "2809134b028f8dd5356f4ace793aab9bc4c31b6e8364e5f5a9e1583c7fdcc319",
+    "divergence_analysis.csv": "f2b5508ab22f822c93ddc6224fbe4126ee6a294e564a0c012382923d1d556fc9",
+    "metrics.csv": "b68acc49ab48d865214be91582dd0483101e301ddb664edb37cbd5132b23c1d3",
+    "predictions_f.csv": "29bbbe740072d315458aba1dc77c0360eb3f2455d82cce51a2a4da2e67d2decd",
+    "predictions_n.csv": "ac1df850cd19fa63a59572924a8e205d7620285a79dd6314a9570eb040555785",
+    "predictions_s.csv": "ac1df850cd19fa63a59572924a8e205d7620285a79dd6314a9570eb040555785"
+  }
+}

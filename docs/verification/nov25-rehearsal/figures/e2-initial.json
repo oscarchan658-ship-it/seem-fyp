@@ -1,0 +1,8 @@
+{
+  "source_file": "results\\engineering-self-check-final\\e2a\\e2a_predictions.csv",
+  "source_sha256": "c412c572e871dbca08534f00368765b8f9269a7967571de18a6174b4d7df730c",
+  "x": "case_id",
+  "y": "prediction",
+  "mode": "synthetic",
+  "plotted_rows": 4
+}

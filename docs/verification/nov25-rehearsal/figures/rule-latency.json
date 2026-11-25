@@ -1,0 +1,8 @@
+{
+  "source_file": "results\\engineering-self-check-final\\benchmark\\timings.csv",
+  "source_sha256": "18e5d6db82fe99ce88b193485e6697abd5c1b49044ac9c2f5a43094d69e06392",
+  "x": "call",
+  "y": "runtime_ms",
+  "mode": "synthetic",
+  "plotted_rows": 31
+}

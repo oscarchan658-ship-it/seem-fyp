@@ -56,9 +56,11 @@ def sentiment_features(
     candidate = evaluate_candidate(evidence, item_id).value
     affect_symptom_divergence = None
     if candidate is not None and result.polarity in {"positive", "neutral", "negative"}:
-        affect_symptom_divergence = (
-            candidate == 0 and result.polarity == "negative"
-        ) or (candidate > 0 and result.polarity in {"neutral", "positive"})
+        present = evidence["symptom_present"]
+        if present is not None:
+            affect_symptom_divergence = (
+                present is False and result.polarity == "negative"
+            ) or (present is True and result.polarity in {"neutral", "positive"})
     return SentimentFeatures(result, affect_symptom_divergence)
 
 

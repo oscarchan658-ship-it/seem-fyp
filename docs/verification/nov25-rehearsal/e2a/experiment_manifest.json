@@ -1,0 +1,50 @@
+{
+  "experiment_id": "engineering-fixtures-only",
+  "empirical_status": "SYNTHETIC PILOT",
+  "turn": "initial",
+  "config": {
+    "mode": "synthetic",
+    "provider": "rule",
+    "experiment_id": "engineering-fixtures-only"
+  },
+  "cases_sha256": "644d92b056350844a738558a9bd0c68c57b9116324320a609738d7c945a76c54",
+  "git_sha": "e10f23d62ec4e827271b152fbac178b547807c49",
+  "python": "3.12.14",
+  "model_versions": [
+    "context-rule-r1-v2"
+  ],
+  "model_signature": "da8cb5bdbba6df62927a184fe3b7e5431d49992e8d4aeeb267aa7a1d09d9e069",
+  "summary": {
+    "total": 4,
+    "accepted": 4,
+    "resolved_gold": 4,
+    "unresolved_gold": 0,
+    "frequency_accuracy": 1.0,
+    "macro_f1": 1.0,
+    "class_f1": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "class_support": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "abstention_rate": 0.0,
+    "coverage": 1.0,
+    "gold_unresolved_rate": 0.0,
+    "unresolved_false_accept_rate": null,
+    "selective_risk": 0.0,
+    "system_failure_rate": 0.0,
+    "ambiguity_accuracy": 1.0,
+    "invalid_ambiguity_outputs": 0
+  },
+  "files": {
+    "e2a_errors.csv": "d2cf2324b1388c0b19c93b0772c091b1e23558b7a452296cdd5a3c9614f24721",
+    "e2a_predictions.csv": "c412c572e871dbca08534f00368765b8f9269a7967571de18a6174b4d7df730c",
+    "e2a_summary.csv": "ac1bbbb56c10573d5b7b54287d4603b5466a9ab2f7458d4be94838e54c6b2203"
+  }
+}

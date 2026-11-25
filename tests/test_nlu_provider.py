@@ -26,12 +26,12 @@ def test_c06_inherits_only_the_current_question_window():
     )
 
 
-def test_c06_observed_days_are_not_a_phq8_candidate():
+def test_c06_r1_observed_days_produce_only_a_provisional_candidate():
     context = ClarificationContext(3, "frequency_in_past_14_days")
     response = NluRequest(3, "Around five days", clarification=context)
     duration = recognize_days(response)
     assert duration.count == 5 and duration.approximate
-    assert RuleProvider().predict(response)["frequency_candidate"] is None
+    assert RuleProvider().predict(response)["frequency_candidate"] == 1
     assert recognize_days(NluRequest(4, response.text, clarification=context)) is None
     assert recognize_days(NluRequest(3, response.text)) is None
     assert (

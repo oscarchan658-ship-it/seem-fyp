@@ -1,0 +1,2 @@
+﻿total,accepted,resolved_gold,unresolved_gold,frequency_accuracy,macro_f1,class_f1,class_support,abstention_rate,coverage,gold_unresolved_rate,unresolved_false_accept_rate,selective_risk,system_failure_rate,ambiguity_accuracy,invalid_ambiguity_outputs
+4,4,4,0,1.0,1.0,"[1.0, 1.0, 1.0, 1.0]","[1, 1, 1, 1]",0.0,1.0,0.0,,0.0,0.0,1.0,0

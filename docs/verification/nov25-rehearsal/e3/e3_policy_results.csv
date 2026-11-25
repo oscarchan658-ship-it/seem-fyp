@@ -1,0 +1,3 @@
+﻿session_id,policy,clarifications,confirmation_actions,completed,final_score,final_score_error,unresolved_items,missing_branches,batch_status
+engineering-session,P0,0,0,False,,,0,0,not_attempted
+engineering-session,P1,0,1,True,8,0,0,0,confirmed

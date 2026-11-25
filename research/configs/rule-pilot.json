@@ -1,0 +1,7 @@
+{
+  "provider": "rule",
+  "version": "context-rule-r1-v2",
+  "mode": "synthetic",
+  "dataset_version": "dataset-b-synthetic-pilot-v1",
+  "confidence_definition": null
+}

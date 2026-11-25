@@ -1,0 +1,12 @@
+{
+  "status": "AWAITING_TEAM_ARTIFACTS",
+  "provider": null,
+  "version": null,
+  "model_path": null,
+  "artifact_sha256": null,
+  "template_version": null,
+  "confidence_definition": null,
+  "dataset_version": null,
+  "git_sha": null,
+  "research_decision_owner": null
+}

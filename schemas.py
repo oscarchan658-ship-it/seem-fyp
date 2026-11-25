@@ -19,6 +19,14 @@ class NluResult(TypedDict):
     confidence_signal: NotRequired[int | float | None]
 
 
+class LocalDayResult(dict):
+    """In-process day evidence. JSON deserialization cannot construct this type."""
+
+    def __init__(self, payload, interval):
+        super().__init__(payload)
+        self.interval = tuple(interval)
+
+
 def validate_nlu(payload: Mapping[str, object], expected_item: int) -> NluResult:
     if not isinstance(payload, Mapping):
         raise ValueError("Expected an NLU object.")
@@ -53,6 +61,8 @@ def validate_nlu(payload: Mapping[str, object], expected_item: int) -> NluResult
     ):
         if type(payload[key]) is not str or payload[key] not in choices:
             raise ValueError(f"Invalid {key}.")
+    if type(payload) is LocalDayResult:
+        return cast(NluResult, LocalDayResult(payload, payload.interval))
     return cast(NluResult, dict(payload))
 
 

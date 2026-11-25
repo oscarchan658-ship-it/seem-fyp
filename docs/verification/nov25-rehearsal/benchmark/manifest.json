@@ -1,0 +1,23 @@
+{
+  "config": {
+    "mode": "synthetic",
+    "provider": "rule",
+    "experiment_id": "engineering-fixtures-only"
+  },
+  "mode": "synthetic",
+  "calls": 31,
+  "workload": "single synthetic item-1 initial response",
+  "model_load_ms": 0.004900000931229442,
+  "cold_inference_ms": 0.09919999865815043,
+  "warm_p50_ms": 0.024649999431858305,
+  "warm_p95_ms": 0.03189999915775843,
+  "failures": 0,
+  "failure_rate": 0.0,
+  "python_tracemalloc_peak_bytes": 3936,
+  "process_rss_bytes": null,
+  "tokens": null,
+  "cost": null,
+  "python": "3.12.14",
+  "instrumentation": "tracemalloc active during inference; excludes native model allocations",
+  "timings_sha256": "18e5d6db82fe99ce88b193485e6697abd5c1b49044ac9c2f5a43094d69e06392"
+}

@@ -1,0 +1,41 @@
+........................................................................ [ 36%]
+........................................................................ [ 73%]
+.....................................................                    [100%]
+=============================== tests coverage ================================
+______________ coverage: platform win32, python 3.12.14-final-0 _______________
+
+Name                             Stmts   Miss  Cover   Missing
+--------------------------------------------------------------
+app.py                              93      1    99%   110
+controller.py                       91      3    97%   93, 119, 128
+evidence_manager.py                 34      2    94%   25, 36
+nlu_provider.py                     64      0   100%
+phq8_engine.py                      28      0   100%
+research\annotation.py             148     36    76%   48, 54, 105, 107, 110, 113, 125, 150, 193, 221-225, 258-301, 316
+research\blind_annotation.py        22      5    77%   47-51
+research\coverage_split.py          49      3    94%   13, 15, 20
+research\dataset_b.py               73      9    88%   34, 80, 101, 117-122, 133
+research\day_mapping.py              7      0   100%
+research\e1.py                      87     15    83%   47, 51, 68, 76, 81, 88, 90, 96, 240-250
+research\e1_smoke.py                38      4    89%   15, 39, 44, 65
+research\e2.py                      33      3    91%   13, 17, 74
+research\e3_runner.py              111     18    84%   25, 35, 48, 60, 67, 87, 89, 93, 118, 127-129, 165, 257-262
+research\engineering.py             77     22    71%   22, 24, 35-36, 79, 91, 123-148
+research\evaluation.py              49      6    88%   18, 21, 25, 29, 67, 79
+research\experiment_runner.py      146     40    73%   52, 55, 61, 65, 69, 77, 85, 95, 104, 106, 109, 113, 156-158, 176, 271-315
+research\follow_up_oracle.py        69     15    78%   27, 43, 51, 59, 63, 66, 68, 85, 93-99
+research\handoff.py                115     36    69%   31, 86, 106, 122, 127, 134, 148, 150, 199-247, 251-271
+research\local_models.py            67     23    66%   37, 39, 63-64, 66-68, 78, 80-92, 128, 131-134, 145, 151
+research\oracle_predictions.py      61     12    80%   15, 19, 30, 37, 68, 72-73, 120-124
+research\pilot_package.py           76      6    92%   90, 299-303
+research\policy_simulator.py       144     20    86%   23, 77, 79, 83, 85, 107, 115-116, 133, 150, 153, 162, 164, 172, 175, 185, 235, 247-255
+research\providers.py               72     10    86%   28, 33, 35, 53-55, 86, 94, 99, 105
+research\rehearsal.py               41      4    90%   156-159
+research\rule_baseline.py           45     13    71%   62-73, 77
+research\statistics.py              29      4    86%   10, 13, 47, 50
+rule_nlu.py                         32      0   100%
+safety_guard.py                      9      0   100%
+schemas.py                          73      2    97%   51, 63
+--------------------------------------------------------------
+TOTAL                             1983    312    84%
+197 passed in 17.83s

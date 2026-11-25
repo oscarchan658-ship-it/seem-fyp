@@ -1,5 +1,18 @@
 # 需求追蹤矩陣與驗收測試
 
+## Research Sprint 回歸追蹤
+
+| 要求 | 工程落點 | 驗收 |
+|---|---|---|
+| C06／C08 核准 R1、零分類別與症狀事實分離 | 本地區間、RuleProvider、共用候選檢查 | test_day_mapping、test_nlu_provider、test_b1_context、test_app 的 R1 案例 |
+| C11 隱藏集合及覆蓋感知分割 | pilot_package、blind_annotation、coverage_split、annotation.freeze | test_pilot_package、test_research_protocol、test_handoff |
+| C12 E2a／E2b 分母與配對 | experiment_runner、e2 | test_experiment_runners、test_research_protocol、test_handoff |
+| C09／C19／C20–22 Oracle、閾值、回放與曲線 | oracle_predictions、e3_runner、policy_simulator | test_oracle_predictions、test_e3_runner、test_research_protocol |
+| C17 E1 同模型及預算，主比較 F−N | e1 | test_experiment_runners、test_rehearsal |
+| C23／C24 工程失效、量度與證據 | local_models、engineering、FMEA | test_fault_injection、test_research_providers、test_engineering |
+
+上述測例屬工程驗收，正式研究狀態須另讀執行證據登記。
+
 專案 **Sentiment Analysis for Depression Detection**。範圍 WP01／03／04／05／06。來源為 Master Plan V3.1（本機原檔 `FYP_Research_and_Implementation_Master_Plan_V3_1.docx`） 與本次使用者約束。模組與資料定義見 [architecture.md](architecture.md)，工作次序見 [實作計劃](docs/superpowers/plans/2026-11-23-fyp-systems-integration.md)。
 
 T01–T24 沿用 V3.1 §V-B 類別及順序。T25 起為新增驗收。測試以虛構輸入、本地規則或明確標記的測試替身執行。實測及待驗收項目見[合成原型驗收紀錄](docs/verification/wp01-wp06-synthetic.md)。

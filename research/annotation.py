@@ -173,7 +173,16 @@ def compare(source, a_file, b_file, output):
     )
 
 
-def freeze(dev_file, locked_file, reviewers, output, *, validation_groups, seed):
+def freeze(
+    dev_file,
+    locked_file,
+    reviewers,
+    output,
+    *,
+    validation_groups=None,
+    seed=42,
+    categories=None,
+):
     sets = _sources(dev_file, locked_file)
     final = []
     provenance = {}
@@ -207,9 +216,17 @@ def freeze(dev_file, locked_file, reviewers, output, *, validation_groups, seed)
             ]
         )
     manifest = validate_sets(*final)
-    train, validation = split_development(
-        final[0], validation_groups=validation_groups, seed=seed
-    )
+    coverage = None
+    if categories is not None:
+        from research.coverage_split import split_coverage
+
+        train, validation, coverage = split_coverage(final[0], categories, seed=seed)
+        if coverage["status"] != "READY":
+            raise ValueError("SPLIT_REVIEW_REQUIRED: inspect Development coverage.")
+    else:
+        train, validation = split_development(
+            final[0], validation_groups=validation_groups, seed=seed
+        )
     output.mkdir()
     splits = {
         "development_train": train,
@@ -220,6 +237,7 @@ def freeze(dev_file, locked_file, reviewers, output, *, validation_groups, seed)
         {
             "seed": seed,
             "validation_groups": validation_groups,
+            "coverage": coverage,
             "provenance": provenance,
             "files": {},
         }
@@ -261,7 +279,9 @@ def main():
         for field in fields:
             stage.add_argument(field, type=Path)
         if name == "freeze":
-            stage.add_argument("--validation-groups", type=int, required=True)
+            choices = stage.add_mutually_exclusive_group(required=True)
+            choices.add_argument("--validation-groups", type=int)
+            choices.add_argument("--coverage-matrix", type=Path)
             stage.add_argument("--seed", type=int, required=True)
     args = cli.parse_args()
     if args.stage == "prepare":
@@ -269,6 +289,15 @@ def main():
     elif args.stage == "compare":
         compare(args.source, args.a, args.b, args.output)
     else:
+        categories = None
+        if args.coverage_matrix:
+            with args.coverage_matrix.open(encoding="utf-8-sig", newline="") as stream:
+                matrix = list(csv.DictReader(stream))
+            categories = {
+                row["case_id"]: row["category"]
+                for row in matrix
+                if row["split"] == "development"
+            }
         freeze(
             args.development,
             args.locked,
@@ -279,6 +308,7 @@ def main():
             args.output,
             validation_groups=args.validation_groups,
             seed=args.seed,
+            categories=categories,
         )
 
 

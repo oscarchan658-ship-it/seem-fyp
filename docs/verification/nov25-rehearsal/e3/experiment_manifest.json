@@ -1,0 +1,47 @@
+{
+  "config": {
+    "mode": "synthetic",
+    "provider": "rule",
+    "experiment_id": "engineering-fixtures-only"
+  },
+  "threshold": {
+    "status": "NOT RUN",
+    "threshold": null,
+    "reason": "Rule has no confidence signal."
+  },
+  "max_clarifications": 2,
+  "policies": {
+    "P0": {
+      "status": "RUN",
+      "sessions": 1,
+      "completion_rate": null,
+      "confirmation_actions": 0,
+      "mean_clarifications": 0.0,
+      "score_error_count": 0,
+      "mean_final_score_error": null,
+      "missing_branches": 0
+    },
+    "P1": {
+      "status": "RUN",
+      "sessions": 1,
+      "completion_rate": 1.0,
+      "confirmation_actions": 1,
+      "mean_clarifications": 0.0,
+      "score_error_count": 1,
+      "mean_final_score_error": 0.0,
+      "missing_branches": 0
+    },
+    "P2": {
+      "status": "NOT RUN",
+      "reason": "No frozen Validation threshold."
+    },
+    "P3": {
+      "status": "NOT RUN",
+      "reason": "No frozen Validation threshold."
+    }
+  },
+  "input_sha256": "e91fa94622a2a5e8fdff3c30a9b58b6c46e6796c7bed64e36811a2f598538dec",
+  "empirical_status": "SYNTHETIC PILOT",
+  "observed_aurc": null,
+  "risk_coverage_status": "NOT RUN"
+}
