@@ -90,6 +90,9 @@ class SessionState:
     safety_state: str | None = None
     result: Phq8Result | None = None
     clarification_item_id: int | None = None
+    day_intervals: Mapping[int, tuple[int, int]] = field(
+        default_factory=lambda: MappingProxyType({})
+    )
 
 
 @dataclass(frozen=True)

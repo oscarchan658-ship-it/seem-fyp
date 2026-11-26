@@ -1,0 +1,28 @@
+{
+  "mode": "AI-AUTHORED DIAGNOSTIC, NOT BLINDED E2",
+  "case_sha256": "cc8815473e0bffea17947d2d176460e9663a3b3fae1b4a8a0dc3867694ed8eb1",
+  "results": {
+    "naive_keyword": {
+      "n": 64,
+      "accepted": 48,
+      "accepted_correct": 24,
+      "coverage": 0.75,
+      "accepted_accuracy": 0.5,
+      "unresolved_n": 32,
+      "unresolved_false_accepts": 24,
+      "resolvable_n": 32,
+      "resolvable_abstentions": 8
+    },
+    "context_rule": {
+      "n": 64,
+      "accepted": 24,
+      "accepted_correct": 24,
+      "coverage": 0.375,
+      "accepted_accuracy": 1.0,
+      "unresolved_n": 32,
+      "unresolved_false_accepts": 0,
+      "resolvable_n": 32,
+      "resolvable_abstentions": 8
+    }
+  }
+}

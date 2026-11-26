@@ -1,0 +1,50 @@
+{
+  "n": 48,
+  "groups": {
+    "en": {
+      "n": 24,
+      "valid": 23,
+      "correct": 23,
+      "macro_f1_valid": 1.0
+    },
+    "zh-Hant": {
+      "n": 24,
+      "valid": 23,
+      "correct": 23,
+      "macro_f1_valid": 1.0
+    }
+  },
+  "errors": [
+    {
+      "case_id": "S-positive-6-en",
+      "text": "Finishing the task made me proud and pleased.",
+      "expected": "positive",
+      "predicted": null,
+      "error": "API connection failed or timed out"
+    },
+    {
+      "case_id": "S-negative-5-zh-Hant",
+      "text": "今晚我覺得孤單和難過。",
+      "expected": "negative",
+      "predicted": null,
+      "error": "API connection failed or timed out"
+    }
+  ],
+  "local_english": {
+    "n": 24,
+    "correct": 19,
+    "macro_f1": 0.7925925925925926
+  },
+  "translation_agreement": 22,
+  "latency_seconds": {
+    "median": 11.978163416555617,
+    "p95": 22.3683099267364,
+    "max": 24.949183832970448
+  },
+  "reported_tokens": {
+    "input_tokens": 5880,
+    "output_tokens": 692,
+    "total_tokens": 6572
+  },
+  "latency_note": "Successful responses only; failed requests have no recorded seconds. Usage excludes smoke and UI calls."
+}

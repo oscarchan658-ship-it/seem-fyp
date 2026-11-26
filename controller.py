@@ -7,7 +7,7 @@ from evidence_manager import assess_candidate, evaluate_candidate
 from nlu_provider import ClarificationContext, NLUProvider, NluRequest, RuleProvider
 from phq8_engine import ConfirmedAnswer, score_phq8
 from safety_guard import check_safety
-from schemas import Event, NluResult, SessionState, Transition
+from schemas import Event, LocalDayResult, NluResult, SessionState, Transition
 
 _ACTIVE = (
     "START",
@@ -144,6 +144,7 @@ def dispatch(
         or event.item_id != state.item_id
     ):
         return reply(state, "rejected")
+    day_interval = None
     if (
         kind == "SELECT"
         and event.text is None
@@ -162,7 +163,10 @@ def dispatch(
         )
         try:
             request = NluRequest(event.item_id, event.text, clarification=context)
-            decision = evaluate_candidate(nlu.predict(request), event.item_id)
+            payload = nlu.predict(request)
+            decision = evaluate_candidate(payload, event.item_id)
+            if type(payload) is LocalDayResult:
+                day_interval = payload.interval
         except Exception:
             return advance(
                 "nlu_unavailable",
@@ -181,6 +185,11 @@ def dispatch(
         return reply(state, "rejected")
 
     provisional = MappingProxyType({**state.provisional_answers, event.item_id: value})
+    intervals = dict(state.day_intervals)
+    intervals.pop(event.item_id, None)
+    if day_interval is not None:
+        intervals[event.item_id] = day_interval
+    intervals = MappingProxyType(intervals)
     if phase == "EDIT_ANSWER" and state.return_to:
         previous, item_id = state.return_to
         return advance(
@@ -189,6 +198,7 @@ def dispatch(
             item_id=item_id,
             return_to=None,
             provisional_answers=provisional,
+            day_intervals=intervals,
         )
     next_item = next(
         (item_id for item_id in _ITEMS if item_id not in provisional), None
@@ -199,10 +209,12 @@ def dispatch(
             phase="BATCH_REVIEW",
             item_id=None,
             provisional_answers=provisional,
+            day_intervals=intervals,
         )
     return advance(
         "question",
         phase="SCREENING",
         item_id=next_item,
         provisional_answers=provisional,
+        day_intervals=intervals,
     )

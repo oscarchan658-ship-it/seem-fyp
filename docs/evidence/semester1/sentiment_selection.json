@@ -1,0 +1,42 @@
+{
+  "trials": [
+    {
+      "model": "logistic_regression",
+      "C": 0.1,
+      "validation_macro_f1": 0.49006886667072563,
+      "fit_and_validation_seconds": 1.355918207904324
+    },
+    {
+      "model": "logistic_regression",
+      "C": 1.0,
+      "validation_macro_f1": 0.6307944581514519,
+      "fit_and_validation_seconds": 2.32893887499813
+    },
+    {
+      "model": "logistic_regression",
+      "C": 10.0,
+      "validation_macro_f1": 0.6319034900893389,
+      "fit_and_validation_seconds": 3.5843550419667736
+    },
+    {
+      "model": "linear_svm",
+      "C": 0.1,
+      "validation_macro_f1": 0.6091363404454079,
+      "fit_and_validation_seconds": 1.052458000020124
+    },
+    {
+      "model": "linear_svm",
+      "C": 1.0,
+      "validation_macro_f1": 0.6324431561400935,
+      "fit_and_validation_seconds": 1.2186057919170707
+    },
+    {
+      "model": "linear_svm",
+      "C": 10.0,
+      "validation_macro_f1": 0.6048254714156384,
+      "fit_and_validation_seconds": 3.150422333041206
+    }
+  ],
+  "winner": "linear_svm",
+  "protocol": "Train only; validation selects C and model; no train+validation refit."
+}
