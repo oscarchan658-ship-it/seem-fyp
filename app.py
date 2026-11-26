@@ -17,6 +17,7 @@ from conversation import (
     open_review,
     ready,
     retry_turn,
+    turn_limit_reached,
 )
 
 st.set_page_config(
@@ -196,6 +197,9 @@ def process(text=None, retry=False):
     st.rerun()
 
 
+if turn_limit_reached(state):
+    st.info(tr("本次對話已到 40 回合上限。資料完整可核對計分；資料不足請重新開始。"))
+
 if state.error:
     st.warning(tr(state.error))
     st.caption(tr("錯誤類型：") + state.meta.get("failure_type", "unknown"))
@@ -237,14 +241,14 @@ elif ready(state):
     if st.button(tr("核對整理內容"), type="primary"):
         st.session_state.conversation = open_review(state)
         st.rerun()
-else:
+elif not turn_limit_reached(state):
     st.caption(tr("可以繼續聊，也可以說「還需要了解什麼？」。資料不足時不會猜分數。"))
 
 text = st.chat_input(
     tr("描述虛構人物的近況，或更正之前的內容…"),
     max_chars=2000,
     key=f"chat-message-{state.session_id}-{state.revision}",
-    disabled=bool(state.error),
+    disabled=bool(state.error) or turn_limit_reached(state),
 )
 if text:
     with st.chat_message("user"):

@@ -24,6 +24,6 @@ The recorded English demo used [0,1,1,2,0,0,1,0] after correcting sleep from ten
 
 ## Understand the evidence
 
-The public TweetEval experiment evaluates English sentiment, the 64 authored parser cases evaluate the retained rule baseline, and the 48 authored bilingual pilot sentences evaluate single-sentence sentiment. None measures the new multi-turn extraction accuracy. The current automated suite has 223 passing tests, including mocked transport. The independent guard recognizes demonstration markers only and cannot detect ordinary crisis language.
+The public TweetEval experiment evaluates English sentiment, the 64 authored parser cases evaluate the retained rule baseline, and the 48 authored bilingual pilot sentences evaluate single-sentence sentiment. None measures the new multi-turn extraction accuracy. The report snapshot recorded 223 passing tests, including mocked transport. The independent guard recognizes demonstration markers only and cannot detect ordinary crisis language.
 
 The full English report, literature reading matrix, saved model results and Chinese explanation are included in the delivery bundle. `questionnaire_app.py` retains the earlier offline questionnaire baseline.

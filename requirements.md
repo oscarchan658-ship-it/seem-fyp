@@ -1,3 +1,22 @@
+# Current chat requirements and baseline traceability
+
+Current chat entry: `app.py`. The matrix below the separator describes the retained offline questionnaire baseline and its historical test IDs. It is not the specification of the connected chat.
+
+| Current requirement | Implementation | Executable evidence |
+|---|---|---|
+| Eight confirmed strict 0–3 values, no score from sentiment | conversation.py, phq8_engine.py | tests/test_conversation.py, tests/test_phq8.py |
+| Context across turns, multiple symptom proposals and corrections | conversation.py | tests/test_conversation.py |
+| Validate source quote, timeframe, item identity and response structure | conversation.py | tests/test_conversation.py |
+| Guard precedes model; interruption clears history | conversation.py, safety_guard.py | tests/test_conversation.py |
+| Failed call can be retried without duplicate text or stale confirmation | conversation.py | tests/test_conversation.py |
+| Turn limit preserves complete review and prevents further model calls | conversation.py, app.py | tests/test_conversation.py |
+| English / Traditional Chinese switch preserves state | localization.py, bilingual_provider.py | tests/test_bilingual.py |
+| Session history is sent to configured API after consent | app.py, terra_client.py | tests/test_bilingual.py, tests/test_terra_client.py; source inspection |
+
+Tests use fictional fixtures and mocked transport. Live fictional checks are recorded in [bilingual evidence](docs/evidence/bilingual/verification.md). A passing test does not establish semantic extraction accuracy or crisis detection.
+
+---
+
 # 需求追蹤矩陣與驗收測試
 
 ## Research Sprint 回歸追蹤
@@ -13,7 +32,7 @@
 
 上述測例屬工程驗收，正式研究狀態須另讀執行證據登記。
 
-專案 **Sentiment Analysis for Depression Detection**。範圍 WP01／03／04／05／06。來源為 Master Plan V3.1（本機原檔 `FYP_Research_and_Implementation_Master_Plan_V3_1.docx`） 與本次使用者約束。模組與資料定義見 [architecture.md](architecture.md)，工作次序見 [實作計劃](docs/superpowers/plans/2026-11-23-fyp-systems-integration.md)。
+專案 **Sentiment Analysis for Depression Detection**。範圍 WP01／03／04／05／06。來源為 Master Plan V3.1（本機原檔 `FYP_Research_and_Implementation_Master_Plan_V3_1.docx`） 與本次使用者約束。模組與資料定義見 [architecture.md](architecture.md)，工作次序見 [目前對話設計](docs/CONVERSATION_UPGRADE.md)。
 
 T01–T24 沿用 V3.1 §V-B 類別及順序。T25 起為新增驗收。測試以虛構輸入、本地規則或明確標記的測試替身執行。實測及待驗收項目見[合成原型驗收紀錄](docs/verification/wp01-wp06-synthetic.md)。
 
@@ -25,13 +44,13 @@ T01–T24 沿用 V3.1 §V-B 類別及順序。T25 起為新增驗收。測試以
 | FR-02 | 缺答、拒答或未確認維持無結果，缺答與合法 0 分可區分。 | `phq8_engine.py`、`controller.py`、`rule_nlu.py` | §IV-B/C、WP03/05、使用者約束 | T01、T05、T11–T12、T19、T24 | Verified (synthetic) | [驗收紀錄](docs/verification/wp01-wp06-synthetic.md) |
 | FR-03 | 同意後逐題作答。只有合法事件可轉移，拒絕及取消清空。 | WP04 `controller.py` | §IV-C、WP04 | T08、T17、T18、T26 | Verified (synthetic) | [驗收紀錄](docs/verification/wp01-wp06-synthetic.md) |
 | FR-04 | 每回合只寫入目標題，缺少過去兩週證據、模糊、矛盾或非法結構時澄清。 | WP01／04／05 `schemas.py`、`controller.py`、`rule_nlu.py` | §IV-B/C、WP01/05 | T09–T16、T24、T27、T35 | Verified (synthetic) | [驗收紀錄](docs/verification/wp01-wp06-synthetic.md) |
-| FR-05 | 八題完整時批次核對。編輯、取消編輯、重跑或重送維持版本一致，只按最新已確認答案評分。 | `controller.py`、`app.py` | §IV-C/E、WP03/04/06，版本守衛為提案 | T06–T07、T18–T20、T28 | Verified (synthetic) | [驗收紀錄](docs/verification/wp01-wp06-synthetic.md) |
+| FR-05 | 八題完整時批次核對。編輯、取消編輯、重跑或重送維持版本一致，只按最新已確認答案評分。 | `controller.py`、`questionnaire_app.py` | §IV-C/E、WP03/04/06，版本守衛為提案 | T06–T07、T18–T20、T28 | Verified (synthetic) | [驗收紀錄](docs/verification/wp01-wp06-synthetic.md) |
 | FR-06 | Guard 獨立於 sentiment，所有活動狀態的自由文字先過 Guard。中斷優先於 NLU、分數與正常轉移。 | WP04／06 `safety_guard.py`、控制器及 UI | §IV-B/C/E、§XII D04、使用者約束 | T21–T23、T29、T36 | Partial | [驗收紀錄](docs/verification/wp01-wp06-synthetic.md) |
-| FR-07 | NLU 失效回到同題選項。Guard 失效或 `review` 阻斷，提供對應的固定畫面。 | `controller.py`、`app.py`、`safety_guard.py` | §IV-E、WP06，失效及 review 語意為提案 | T24、T29 | Verified (synthetic) | [驗收紀錄](docs/verification/wp01-wp06-synthetic.md) |
-| FR-08 | Sentiment 缺席、與症狀不一致或輸出改變時，候選、確認及計分維持相同。 | `controller.py`、`app.py` | §I、IV-B/C、使用者約束 | T30 | Verified (synthetic) | [驗收紀錄](docs/verification/wp01-wp06-synthetic.md) |
-| NFR-01 | 保留核准題目。畫面標示研究原型，分數呈現為篩查／症狀程度。使用已審核或標記的測試文案。 | `app.py` | §I-C、§IV-E、§X、使用者約束 | T31 | Partial | [驗收紀錄](docs/verification/wp01-wp06-synthetic.md) |
-| NFR-02 | 本地以 Python、pytest、Streamlit 重現。只用合成資料，不依賴 DB、外部模型或真實病患資料。 | `app.py`、`tests/test_app.py` | §IV-B/E、WP06、§XI、使用者約束 | T24、T31–T33 | Verified (synthetic) | [驗收紀錄](docs/verification/wp01-wp06-synthetic.md) |
-| NFR-03 | 自由文字只在事件處理所需期間使用。會話隔離，取消／中斷／重設清除問卷資料，追蹤資料排除原始文字。 | `schemas.py`、`controller.py`、`app.py` | §IV-B/C/E，清除及隔離為提案 | T08、T23、T32 | Verified (synthetic) | [驗收紀錄](docs/verification/wp01-wp06-synthetic.md) |
+| FR-07 | NLU 失效回到同題選項。Guard 失效或 `review` 阻斷，提供對應的固定畫面。 | `controller.py`、`questionnaire_app.py`、`safety_guard.py` | §IV-E、WP06，失效及 review 語意為提案 | T24、T29 | Verified (synthetic) | [驗收紀錄](docs/verification/wp01-wp06-synthetic.md) |
+| FR-08 | Sentiment 缺席、與症狀不一致或輸出改變時，候選、確認及計分維持相同。 | `controller.py`、`questionnaire_app.py` | §I、IV-B/C、使用者約束 | T30 | Verified (synthetic) | [驗收紀錄](docs/verification/wp01-wp06-synthetic.md) |
+| NFR-01 | 保留核准題目。畫面標示研究原型，分數呈現為篩查／症狀程度。使用已審核或標記的測試文案。 | `questionnaire_app.py` | §I-C、§IV-E、§X、使用者約束 | T31 | Partial | [驗收紀錄](docs/verification/wp01-wp06-synthetic.md) |
+| NFR-02 | 本地以 Python、pytest、Streamlit 重現。只用合成資料，不依賴 DB、外部模型或真實病患資料。 | `questionnaire_app.py`、`tests/test_app.py` | §IV-B/E、WP06、§XI、使用者約束 | T24、T31–T33 | Verified (synthetic) | [驗收紀錄](docs/verification/wp01-wp06-synthetic.md) |
+| NFR-03 | 自由文字只在事件處理所需期間使用。會話隔離，取消／中斷／重設清除問卷資料，追蹤資料排除原始文字。 | `schemas.py`、`controller.py`、`questionnaire_app.py` | §IV-B/C/E，清除及隔離為提案 | T08、T23、T32 | Verified (synthetic) | [驗收紀錄](docs/verification/wp01-wp06-synthetic.md) |
 | NFR-04 | 每項必備需求可追到驗收案例，僅以實際執行的證據填報結果。 | `tests/test_traceability.py` | §V-A/B、WP01、使用者約束 | T34 | Verified (synthetic) | [驗收紀錄](docs/verification/wp01-wp06-synthetic.md) |
 
 ## 驗收案例
@@ -72,7 +91,7 @@ T01–T24 沿用 V3.1 §V-B 類別及順序。T25 起為新增驗收。測試以
 | T30 | 整合 | 同一合成腳本在沒有 sentiment、以及注入不同或故障的 sentiment 替身下，比對暫存、確認集與總分相同。若採無 adapter 設計，改驗證 app 不匯入或呼叫 sentiment，且在無模型環境執行相同流程。 |
 | T31 | UI＋人工核對 | 核准題目逐字一致。Consent、結果、中斷畫面可辨識研究用途，無臨床安全或診斷宣稱。核對安全文案版本及審查狀態。 |
 | T32 | UI＋人工核對 | 用兩個獨立會話及無個資的虛構字串驗證隔離。重設不帶入舊資料。掃描觀察到的應用日誌、輸出、截圖及專案資料目錄，查無該字串的留存或輸出。 |
-| T33 | UI＋人工 demo | 乾淨環境執行 `python -m pytest -q` 和 `streamlit run app.py`。啟動後以合成資料從 consent 走到 result，能編輯並確認。記錄啟動方式、已使用的替身及實際截圖。 |
+| T33 | UI＋人工 demo | 乾淨環境執行 `python -m pytest -q` 和 `streamlit run questionnaire_app.py`。啟動後以合成資料從 consent 走到 result，能編輯並確認。記錄啟動方式、已使用的替身及實際截圖。 |
 | T34 | 驗收紀錄審查 | 每項 FR/NFR 有至少一個案例。執行後逐案留存測試 ID、預期／實際、PASS／FAIL、日期、Git commit、Python／pytest／Streamlit 版本和環境。未跑標未執行。 |
 
 | T35 | `tests/test_rule_nlu.py` | 句尾標點前空白不應令清楚頻率變成模糊；相同標點正規化亦不得接受模糊、缺時間窗及矛盾回覆。 |

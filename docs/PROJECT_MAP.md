@@ -21,4 +21,4 @@
 
 Raw datasets, downloaded full papers, personal university forms and credentials are not part of the published repository. Results summaries are committed; full reproducibility outputs and the trained SVM are in the local delivery bundle or can be regenerated. The bilingual chat uses the remote model and does not require the SVM artifact.
 
-Earlier architecture and verification documents describe the retained baseline. See docs/CONVERSATION_UPGRADE.md for the newer scope and requirements mapping. Clinical validation, independent multi-turn extraction evaluation and an operational crisis detector are not completed.
+architecture.md describes the current chat. The dated verification documents and baseline section of requirements.md describe the retained questionnaire. See docs/CONVERSATION_UPGRADE.md for the newer scope and requirements mapping. Clinical validation, independent multi-turn extraction evaluation and an operational crisis detector are not completed.

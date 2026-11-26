@@ -1,6 +1,6 @@
 # Research Sprint execution ledger
 
-Plan: docs/superpowers/plans/2026-11-25-fyp-research-sprint.md
+Historical plan: the 25 November sprint checklist was removed during repository cleanup; it remains in Git history. Reproduction commands: ../reproducibility/research-sprint.md
 
 Baseline: 502a86d. Date: 2026-11-25 JST.
 

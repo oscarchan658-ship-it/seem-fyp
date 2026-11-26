@@ -18,6 +18,7 @@ ITEMS = (
     "動作／說話變慢或坐立不安",
 )
 OPTIONS = ("完全沒有", "有幾天", "超過一半的日子", "幾乎每天")
+MAX_TURNS = 40
 OPENING = "你好，我們可以從最近的生活聊起。以過去兩星期來說，有沒有什麼特別影響你的心情、睡眠，或做事情的精神？你可以用自己的方式描述，不用逐題作答。"
 PROMPT = """You are a warm, concise Traditional Chinese conversational PHQ-8 research
 assistant, using fictional examples only. Converse naturally like a thoughtful listener;
@@ -93,6 +94,10 @@ def new_conversation():
     return Conversation(
         messages=({"role": "assistant", "content": OPENING, "turn_id": 0},)
     )
+
+
+def turn_limit_reached(state):
+    return sum(m["role"] == "user" for m in state.messages) >= MAX_TURNS
 
 
 class ConversationProvider:
@@ -176,13 +181,12 @@ def chat_turn(state, text, provider, *, guard=check_safety):
             phase="PAUSED",
             error="流程已暫停並清除本次對話。這是示範中斷，不是危機評估。",
         )
+    if turn_limit_reached(state):
+        # No message was accepted: preserve the last valid review and retry state.
+        return state
     messages = state.messages + (
         {"role": "user", "content": text, "turn_id": len(state.messages)},
     )
-    if len(messages) > 81:
-        return replace(
-            state, error="本次對話已到 40 回合上限，請核對已整理資料或重新開始。"
-        )
     # Clear the prior result/review before any new interpretation. Errors never create scores.
     base = replace(
         state,
