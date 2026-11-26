@@ -1,0 +1,112 @@
+Browser tab: 6, Title: "Mood conversation · Group T", URL: "http://127.0.0.1:8501/".
+0 AXWebArea Mood conversation · Group T, URL: 127.0.0.1:8501/
+	1 container
+		4 container
+			5 link Description: Skip to main content, Value: 127.0.0.1:8501/#stMain
+			6 container Description: Sidebar, ID: stSidebar
+				7 container
+					9 container
+						10 combo box (collapsed, settable) Description: Language, Value: English, ID: react-aria1072310677-:r9:, Secondary Actions: Expand
+						11 pop up button (collapsed) Description: Open, ID: react-aria1072310677-:r5:, Secondary Actions: Expand
+					12 heading Mood conversation, Value: 2
+						13 text Mood conversation
+					14 text Group T · PHQ-8 conversation prototype
+					15 text Sentiment Analysis for Depression Detection
+					16 button Clear conversation and start again
+						17 text Clear conversation and start again
+					18 text Talk first, review together at the end
+					19 text Mention several things at once and correct them anytime. AI organizes symptom frequencies; scoring follows your confirmation.
+					20 button (collapsed) Connection settings, Secondary Actions: Expand
+						21 text Connection settings
+					22 text Connection settings provided
+					23 text Research demo with fictional cases only. The safety guard is a mock, not a crisis detector. No diagnosis is provided.
+					27 text 8 / 8 frequencies collected
+					28 progress indicator Description: progress, Value: 100, ID: react-aria1072310677-:r1b:
+					29 button (collapsed) View current summary, Secondary Actions: Expand
+						30 text View current summary
+					43 text Latest sentiment: neutral (not used for scoring)
+			24 container
+				25 button Deploy
+				26 pop up button (collapsed) Description: Main menu, Secondary Actions: Expand
+			31 container stMain
+				32 heading Let's talk about recent life, Value: 1, ID: lets-talk-about-recent-life
+					33 text Let's talk about recent life
+					34 link Description: Link to heading, Value: 127.0.0.1:8501/#lets-talk-about-recent-life
+				35 text Speak in your own words. We will review the summary together before scoring.
+				44 text Earlier messages and source quotes remain in their original language. New replies use your selected language.
+				45 container Chat message from assistant
+					46 text Hello. Thinking about the past two weeks, has anything been affecting your mood, sleep, or energy? Tell me in your own words; you do not need to answer a list of questions.
+				41 container Chat message from user
+					42 text For this fictional example, over the past two weeks I slept badly on about ten nights and felt tired the next day. I still enjoyed playing basketball.
+				47 container Chat message from assistant
+					48 text Sleeping badly for about ten nights and feeling tired the next day sounds difficult. You mentioned you still enjoyed basketball. Over the past two weeks, have you felt down, depressed, or hopeless?
+				54 container Chat message from user
+					55 text In those two weeks I felt down on three days. There was no loss of interest at all, and I felt tired on exactly ten days.
+				52 container Chat message from assistant
+					53 text Thanks for clarifying. You felt down on three days and tired on ten days, with no loss of interest. Have you noticed any changes in your appetite over the past two weeks?
+				61 container Chat message from user
+					62 text Over these two weeks, no appetite changes, no feelings of worthlessness or guilt, and no slowing down or restlessness at all. I had trouble concentrating on four days. Also I need to correct the sleep detail: it was exactly six nights, not ten.
+				59 container Chat message from assistant
+					60 text Thanks for correcting the sleep detail and sharing the rest. I’ve noted the changes. You can use the review button to look over your responses.
+				63 heading Here is the summary of our conversation, Value: 3, ID: here-is-the-summary-of-our-conversation
+					64 text Here is the summary of our conversation
+					65 link Description: Link to heading, Value: 127.0.0.1:8501/#here-is-the-summary-of-our-conversation
+				66 text Review the frequencies over the past two weeks. Change an option below, or continue chatting to correct the summary.
+				67 text Reduced interest or pleasure
+				68 text No loss of interest.
+				69 text Source: “There was no loss of interest at all”
+				70 container
+					71 combo box (collapsed, settable) Description: Reduced interest or pleasure: frequency, Value: Not at all, ID: react-aria1072310677-:r1l:, Secondary Actions: Expand
+					72 pop up button (collapsed) Description: Open, ID: react-aria1072310677-:r1h:, Secondary Actions: Expand
+				73 text Low mood or hopelessness
+				74 text Felt down on 3 days.
+				75 text Source: “I felt down on three days”
+				76 container
+					77 combo box (collapsed, settable) Description: Low mood or hopelessness: frequency, Value: Several days, ID: react-aria1072310677-:r24:, Secondary Actions: Expand
+					78 pop up button (collapsed) Description: Open, ID: react-aria1072310677-:r20:, Secondary Actions: Expand
+				79 text Sleep difficulties
+				80 text Corrected sleep difficulties to exactly 6 nights.
+				81 text Source: “it was exactly six nights, not ten”
+				82 container
+					83 combo box (collapsed, settable) Description: Sleep difficulties: frequency, Value: Several days, ID: react-aria1072310677-:r2j:, Secondary Actions: Expand
+					84 pop up button (collapsed) Description: Open, ID: react-aria1072310677-:r2f:, Secondary Actions: Expand
+				85 text Fatigue or low energy
+				86 text Felt tired on exactly 10 days.
+				87 text Source: “I felt tired on exactly ten days”
+				88 container
+					89 combo box (collapsed, settable) Description: Fatigue or low energy: frequency, Value: More than half the days, ID: react-aria1072310677-:r32:, Secondary Actions: Expand
+					90 pop up button (collapsed) Description: Open, ID: react-aria1072310677-:r2u:, Secondary Actions: Expand
+				91 text Appetite changes
+				92 text No appetite changes.
+				93 text Source: “no appetite changes”
+				94 container
+					95 combo box (collapsed, settable) Description: Appetite changes: frequency, Value: Not at all, ID: react-aria1072310677-:r3h:, Secondary Actions: Expand
+					96 pop up button (collapsed) Description: Open, ID: react-aria1072310677-:r3d:, Secondary Actions: Expand
+				97 text Low self-worth or guilt
+				98 text No feelings of worthlessness or guilt.
+				99 text Source: “no feelings of worthlessness or guilt”
+				100 container
+					101 combo box (collapsed, settable) Description: Low self-worth or guilt: frequency, Value: Not at all, ID: react-aria1072310677-:r40:, Secondary Actions: Expand
+					102 pop up button (collapsed) Description: Open, ID: react-aria1072310677-:r3s:, Secondary Actions: Expand
+				103 text Difficulty concentrating
+				104 text Trouble concentrating on 4 days.
+				105 text Source: “I had trouble concentrating on four days”
+				106 container
+					107 combo box (collapsed, settable) Description: Difficulty concentrating: frequency, Value: Several days, ID: react-aria1072310677-:r4f:, Secondary Actions: Expand
+					108 pop up button (collapsed) Description: Open, ID: react-aria1072310677-:r4b:, Secondary Actions: Expand
+				109 text Slowing down or restlessness
+				110 text No slowing down or restlessness.
+				111 text Source: “no slowing down or restlessness at all”
+				112 container
+					113 combo box (collapsed, settable) Description: Slowing down or restlessness: frequency, Value: Not at all, ID: react-aria1072310677-:r4u:, Secondary Actions: Expand
+					114 pop up button (collapsed) Description: Open, ID: react-aria1072310677-:r4q:, Secondary Actions: Expand
+				115 container
+					116 checkbox (settable, integer) Description: I have reviewed all eight items and confirm these frequencies for this fictional situation., Value: 0
+					117 text I have reviewed all eight items and confirm these frequencies for this fictional situation.
+				118 button Confirm and view score
+					119 text Confirm and view score
+				120 container
+					121 text entry area (settable) Describe a fictional situation, or correct an earlier detail…
+					122 button (disabled) Send message
+
+The focused UI element is 0 AXWebArea Mood conversation · Group T, URL: 127.0.0.1:8501/

@@ -1,0 +1,57 @@
+[
+  {
+    "file": "source_text/calibration.txt",
+    "sha256": "f24984bdf1db8cde286d6422714de072cf720c58fb4a284afcdad2de4c068850",
+    "bytes": 45285
+  },
+  {
+    "file": "source_text/daic.txt",
+    "sha256": "2be4aa75596389ef990b4825eb5ad88638d281512bc211c751513bb90475b31c",
+    "bytes": 30918
+  },
+  {
+    "file": "source_text/goemotions.txt",
+    "sha256": "af8731bba2ae587e42c83f28c44d4561732a17ad60394d655412cef21517ada2",
+    "bytes": 56829
+  },
+  {
+    "file": "source_text/healthcare_agents_full.txt",
+    "sha256": "4a9d59c6fcfb18d1fcf74c6b7a7a3d51d77c1ed24a6443dc686f349366f9f46d",
+    "bytes": 67133
+  },
+  {
+    "file": "source_text/phq8_days.txt",
+    "sha256": "565b93e44227b5c4c21a27192918b287d3a12731ef306d4aa5ddebe00f76faec",
+    "bytes": 39592
+  },
+  {
+    "file": "source_text/pmid-18752852.txt",
+    "sha256": "4a2699947f51160857f82f0c0e82ebe0d70597cc17d1b02794934a90dfbce946",
+    "bytes": 1998
+  },
+  {
+    "file": "source_text/pmid-28588005.txt",
+    "sha256": "d5e5a9f91367806361f10667b97cb262d10ff7a6312ddb8272d7414275624573",
+    "bytes": 2541
+  },
+  {
+    "file": "source_text/pmid-30010941.txt",
+    "sha256": "ac95defb985236dc04d73640fe675a43d7692388e7daa5b3c02dfeb5f885ef88",
+    "bytes": 2060
+  },
+  {
+    "file": "source_text/selective.txt",
+    "sha256": "e1ffb9246fc5488b641515a07c3fd27aee59d765e66661d8a099815e7a8d24ab",
+    "bytes": 31844
+  },
+  {
+    "file": "source_text/tweeteval.txt",
+    "sha256": "3db230bef021df36849b58366b254cb5ec95d5921089f48e8ac52428f4ebe40d",
+    "bytes": 31825
+  },
+  {
+    "file": "source_text/woebot_full.txt",
+    "sha256": "c50b9b944dae2d75fc56b2ed068d0de561c7b6cd922c3ba0def177e6dbfe8369",
+    "bytes": 50320
+  }
+]

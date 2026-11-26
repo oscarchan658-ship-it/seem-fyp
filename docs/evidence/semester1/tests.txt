@@ -1,0 +1,44 @@
+........................................................................ [ 34%]
+........................................................................ [ 69%]
+...............................................................          [100%]
+================================ tests coverage ================================
+______________ coverage: platform darwin, python 3.12.14-final-0 _______________
+
+Name                             Stmts   Miss  Cover
+----------------------------------------------------
+answer_display.py                    9      0   100%
+app.py                             116      1    99%
+controller.py                      100      3    97%
+evidence_manager.py                 34      2    94%
+nlu_provider.py                     64      0   100%
+phq8_engine.py                      28      0   100%
+research/annotation.py             148     36    76%
+research/blind_annotation.py        22      5    77%
+research/coverage_split.py          49      3    94%
+research/dataset_b.py               73      9    88%
+research/day_mapping.py              7      0   100%
+research/e1.py                      87     15    83%
+research/e1_smoke.py                38      4    89%
+research/e2.py                      33      3    91%
+research/e3_runner.py              111     18    84%
+research/engineering.py             77     22    71%
+research/evaluation.py              49      6    88%
+research/experiment_runner.py      146     40    73%
+research/follow_up_oracle.py        69     15    78%
+research/handoff.py                115     36    69%
+research/local_models.py            67     23    66%
+research/oracle_predictions.py      61     12    80%
+research/pilot_package.py           76      6    92%
+research/policy_simulator.py       144     20    86%
+research/providers.py               72     10    86%
+research/rehearsal.py               41      4    90%
+research/rule_baseline.py           45     13    71%
+research/statistics.py              29      4    86%
+rule_nlu.py                         32      0   100%
+safety_guard.py                      9      0   100%
+schemas.py                          74      2    97%
+sentiment_service.py                22      6    73%
+terra_client.py                     51     11    78%
+----------------------------------------------------
+TOTAL                             2098    329    84%
+207 passed in 6.94s
