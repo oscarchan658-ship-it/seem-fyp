@@ -138,3 +138,80 @@ def test_web_chat_and_review(monkeypatch):
     click(app, "清除對話並重新開始")
     assert not app.session_state["conversation"].candidates
     assert len(app.session_state["conversation"].messages) == 1
+
+
+def at_turn_limit(complete=True):
+    from dataclasses import replace
+
+    s = chat_turn(
+        new_conversation(),
+        "所有八項都完全沒有",
+        engine(
+            [update(i, 0, "所有八項都完全沒有") for i in range(1, 9)]
+            if complete
+            else []
+        ),
+    )
+    messages = list(s.messages)
+    for _ in range(39):
+        messages.append({"role": "user", "content": "補充", "turn_id": len(messages)})
+        messages.append(
+            {"role": "assistant", "content": "收到", "turn_id": len(messages)}
+        )
+    return replace(s, messages=tuple(messages))
+
+
+def test_turn_cap_preserves_review_and_blocks_extra_calls():
+    p = engine()
+    state = at_turn_limit()
+    assert chat_turn(state, "額外一句", p) == state
+    p.respond.assert_not_called()
+    reviewed = open_review(state)
+    assert (
+        confirm_review(
+            reviewed,
+            dict.fromkeys(range(1, 9), 0),
+            expected_revision=reviewed.revision,
+            consent=True,
+        ).result.total
+        == 0
+    )
+    incomplete = at_turn_limit(complete=False)
+    assert not ready(incomplete)
+    assert open_review(incomplete) == incomplete
+    interrupted = chat_turn(state, "[DEMO_INTERRUPT]", p)
+    assert interrupted.phase == "PAUSED" and not interrupted.messages
+
+
+def test_fortieth_failed_turn_can_retry_without_allowing_forty_first():
+    from dataclasses import replace
+    from conversation import turn_limit_reached
+
+    state = replace(at_turn_limit(), messages=at_turn_limit().messages[:-2])
+    p = engine()
+    p.respond.side_effect = TimeoutError
+    failed = chat_turn(state, "最後補充", p)
+    assert failed.error and turn_limit_reached(failed)
+    recovered = retry_turn(failed, engine())
+    assert not recovered.error and turn_limit_reached(recovered)
+    assert len(recovered.messages) == 81
+    p.reset_mock()
+    assert chat_turn(recovered, "另一句", p) == recovered
+    p.respond.assert_not_called()
+
+
+def test_web_turn_limit_keeps_complete_review_available(monkeypatch):
+    from streamlit.testing.v1 import AppTest
+    from pathlib import Path
+    from tests.test_app import click
+
+    monkeypatch.setenv("FYP_API_KEY", "test-only")
+    app = AppTest.from_file(str(Path(__file__).resolve().parents[1] / "app.py")).run()
+    app.session_state["chat_consent"] = True
+    app.session_state["conversation"] = at_turn_limit()
+    app.run()
+    assert app.chat_input[0].disabled and not app.exception
+    click(app, "核對整理內容")
+    app.checkbox[0].check()
+    click(app, "確認並查看分數")
+    assert app.metric[0].value == "0 / 24"

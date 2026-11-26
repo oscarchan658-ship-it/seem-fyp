@@ -1,8 +1,18 @@
-# V3.2 離線研究準備
+# Research experiments and evaluation tools
 
-## 2026-11-25 Research Sprint
+## Executed semester studies
 
-新 Sprint 嘅 R1、隱藏集別盲標、coverage-aware 分割、E2a／E2b、E3 及 E1 命令見 [可重現操作與交接](../docs/reproducibility/research-sprint.md)。下文保留舊版交接介面及歷史待核定說明，新 Sprint 以新操作文件同 [五日實作計劃](../docs/superpowers/plans/2026-11-25-fyp-research-sprint.md) 為準。
+| Command/module | Scope | Saved evidence |
+|---|---|---|
+| `research.sentiment_benchmark` | Official TweetEval splits; majority, logistic regression and SVM | `docs/evidence/semester1/sentiment_metrics.json` |
+| `research.diagnostic_cases` | 64 authored rule-parser cases | `docs/evidence/semester1/parser_diagnostic.json` |
+| `scripts/run_connected.py` | 48 authored bilingual sentiment requests plus a smoke request | `docs/evidence/semester1/terra_summary.json` |
+
+Commands and installation are in the root [README](../README.md). These studies do not evaluate clinical diagnosis or independent multi-turn extraction accuracy.
+
+## Future study tools
+
+The modules below support E1/E2/E3 study preparation. Formal studies have not been completed. Existing synthetic rehearsals only verify the pipelines. See [reproduction and handoff](../docs/reproducibility/research-sprint.md) and the [dated evidence register](../docs/evidence/research-sprint-register.md).
 
 ## Dataset B 人工標註交接
 
@@ -27,11 +37,9 @@ python -m research.follow_up_oracle oracle.json --formal
 
 JSON 頂層為案例陣列。每案提供 `case_id`、`author_ref`、`item_id`、`initial_answer`、`system_clarification`、`gold_frequency` 及 `branches`。每分支填 `turn`、`action_id`、`outcome`、`text`。同案以不同 action ID 區分分支，至少有一個 `reply` 和一個 `unresolved` 或 `refusal`。後兩者的 `text` 為 null。工具驗證 24–32 案及結構並產生檔案雜湊。正式跑批還須凍結同一模型的各分支預測及確認回應。
 
-## C06 Day-to-Frequency Mapping（待核定）
+## Day-to-frequency mapping
 
-`nlu_provider.py` 的 `RuleProvider` 只讓明確類別繼承當題過去兩週的時間窗。`recognize_days` 在同一題且已追問過去兩週頻率時，可識別「Around five days」為約略五天。B1 分支已接入互動 Controller；天數不產生頻率候選，畫面繼續澄清。
-
-啟用轉換前，需有核定版本列明：依據來源、量表及適用語言、時間窗、0–14 天各類別完整區間、精確與約略天數、跨級區間、模糊、超界和衝突時的處理，以及各邊界的虛構測試。收到核定版後，先加邊界測試，再啟用映射。
+The retained RuleProvider now uses the versioned R1 mapping in `research/day_mapping.py`: 0–1 days → 0, 2–6 → 1, 7–11 → 2, 12–14 → 3. Earlier notes saying day-count conversion was disabled are obsolete. The chat prompt uses the same intervals, but does not independently validate the model's semantic interpretation. Source and limitations are discussed in the report and literature matrix.
 
 ## C11 Dataset B
 

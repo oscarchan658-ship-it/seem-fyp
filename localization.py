@@ -61,8 +61,7 @@ EN = {
     "這段較長，請分成兩段傳送。": "This message is too long. Please split it into two parts.",
     "流程已暫停並清除本次對話。這是示範中斷，不是危機評估。": "The conversation has been paused and cleared. This is a "
     "demonstration interruption, not a crisis assessment.",
-    "本次對話已到 40 回合上限，請核對已整理資料或重新開始。": "This conversation has reached the 40-turn limit. Please "
-    "start again.",
+    "本次對話已到 40 回合上限。資料完整可核對計分；資料不足請重新開始。": "The 40-turn limit has been reached. Review and score a complete summary, or start again if information is missing.",
     "AI 暫時未能回覆，本次訊息尚未整理。請按「重試上一句」，或檢查側欄連線設定。": "AI could not reply. This message has not been "
     "processed. Retry it or check the connection "
     "settings.",
