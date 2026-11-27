@@ -15,5 +15,6 @@ data/tweeteval/*_labels.txt
 .streamlit/secrets.toml
 *.pem
 .DS_Store
+~$*
 docs/literature/source_text/
 submission_private/

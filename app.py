@@ -11,6 +11,7 @@ import streamlit as st
 from conversation import (
     ITEMS,
     OPTIONS,
+    analyze_affect_symptom_alignment,
     chat_turn,
     confirm_review,
     new_conversation,
@@ -147,6 +148,33 @@ if state.phase == "PAUSED":
 if state.phase == "RESULT":
     st.success(tr("已按你核對的八項頻率完成加總。"))
     st.metric(tr("PHQ-8 問卷總分"), f"{state.result.total} / 24")
+    obs = analyze_affect_symptom_alignment(state)
+    c = obs["counts"]
+    st.subheader(tr("雙通道語氣與症狀對照觀察"))
+    st.caption(
+        (
+            f"Affect channel turns — negative: {c['negative']}, "
+            f"neutral: {c['neutral']}, positive: {c['positive']}"
+            if lang == "en"
+            else f"情緒通道統計 — 負面：{c['negative']} 回合 · "
+            f"中性：{c['neutral']} 回合 · 正面：{c['positive']} 回合"
+        )
+    )
+    quadrant_notes = {
+        "congruent_low": "語氣極性與核對後兩週症狀頻率一致（低症狀負擔、非負面主導語氣）。",
+        "situational_distress": "語氣與症狀出現落差（情境負向／短期壓力宣洩）：對話語氣偏負面，但核對後的兩週症狀總分較低。情緒極性不改變問卷計分。",
+        "masked_somatic": "語氣與症狀出現落差（平淡／隱性生理表達）：對話語氣偏中性或正面，但核對後的兩週症狀頻率偏高。平淡語氣不等於低症狀負擔；總分完全依核對頻率計算。",
+        "congruent_elevated": "語氣極性與核對後兩週症狀頻率一致（負向語氣與較高症狀頻率同時出現）。",
+        "unconfirmed_or_unclear": "對話語氣紀錄不足，僅顯示核對後的問卷總分。",
+    }
+    note_text = tr(quadrant_notes[obs["quadrant"]])
+    if obs["divergent"]:
+        st.info(note_text)
+    else:
+        st.write(note_text)
+    st.caption(
+        tr("雙通道觀察僅供研究對照，不屬於臨床診斷，亦絕不增減已確認的 0–24 分總和。")
+    )
     st.caption(tr("這不是診斷，也不代表已排除任何風險。如需修改，請清除並重新開始。"))
     st.stop()
 
@@ -166,12 +194,17 @@ with st.sidebar:
             st.write(
                 f"{label}: {options[u['frequency']] if u and u['frequency'] is not None else tr('還需要了解')}"
             )
-    if state.sentiment != "unclear":
+    if state.sentiment != "unclear" or state.sentiment_trace:
+        obs_live = analyze_affect_symptom_alignment(state)
+        c_live = obs_live["counts"]
         st.caption(
             (
-                f"Latest sentiment: {state.sentiment} (not used for scoring)"
+                f"Latest sentiment: {state.sentiment} · Trace "
+                f"(neg {c_live['negative']} / neu {c_live['neutral']} / "
+                f"pos {c_live['positive']}; non-scoring)"
                 if lang == "en"
-                else f"最近一句情緒：{state.sentiment}（不參與計分）"
+                else f"最近一句情緒：{state.sentiment} · 累計（負 {c_live['negative']} / "
+                f"中 {c_live['neutral']} / 正 {c_live['positive']}；不參與計分）"
             )
         )
 

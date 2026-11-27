@@ -65,6 +65,13 @@ EN = {
     "AI 暫時未能回覆，本次訊息尚未整理。請按「重試上一句」，或檢查側欄連線設定。": "AI could not reply. This message has not been "
     "processed. Retry it or check the connection "
     "settings.",
+    "雙通道語氣與症狀對照觀察": "Dual-Channel Affect–Symptom Observation",
+    "語氣極性與核對後兩週症狀頻率一致（低症狀負擔、非負面主導語氣）。": "Conversational affect aligns with low confirmed 14-day symptom frequencies.",
+    "語氣與症狀出現落差（情境負向／短期壓力宣洩）：對話語氣偏負面，但核對後的兩週症狀總分較低。情緒極性不改變問卷計分。": "Affect–symptom divergence (situational negativity): negative conversational affect alongside low confirmed 14-day symptom frequencies. Sentiment never alters the PHQ-8 score.",
+    "語氣與症狀出現落差（平淡／隱性生理表達）：對話語氣偏中性或正面，但核對後的兩週症狀頻率偏高。平淡語氣不等於低症狀負擔；總分完全依核對頻率計算。": "Affect–symptom divergence (masked/neutral presentation): predominantly neutral or positive wording alongside elevated confirmed 14-day symptom frequencies. Neutral tone does not imply low symptom burden; the score reflects confirmed frequencies only.",
+    "語氣極性與核對後兩週症狀頻率一致（負向語氣與較高症狀頻率同時出現）。": "Conversational affect aligns with elevated confirmed 14-day symptom frequencies.",
+    "對話語氣紀錄不足，僅顯示核對後的問卷總分。": "Insufficient unambiguous affect turns recorded; displaying confirmed questionnaire score only.",
+    "雙通道觀察僅供研究對照，不屬於臨床診斷，亦絕不增減已確認的 0–24 分總和。": "Dual-channel observations are descriptive research summaries, not clinical diagnoses, and never modify the confirmed 0–24 score.",
 }
 
 ITEMS_EN = (

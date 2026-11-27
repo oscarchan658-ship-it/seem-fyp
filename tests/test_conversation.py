@@ -215,3 +215,118 @@ def test_web_turn_limit_keeps_complete_review_available(monkeypatch):
     app.checkbox[0].check()
     click(app, "確認並查看分數")
     assert app.metric[0].value == "0 / 24"
+
+
+def test_dual_channel_quadrants_score_invariance_and_safety_clear():
+    from conversation import analyze_affect_symptom_alignment
+
+    def custom_engine(updates, sentiment):
+        return Mock(
+            respond=Mock(
+                return_value=(
+                    {
+                        "reply": "明白。",
+                        "sentiment": sentiment,
+                        "updates": list(updates),
+                    },
+                    {"reported_model": "mock"},
+                )
+            )
+        )
+
+    # Situational distress: negative affect + low confirmed score (< 10)
+    s_neg = chat_turn(
+        new_conversation(),
+        "今日考試超慘，但其他八項都完全沒有",
+        custom_engine(
+            [update(i, 0, "其他八項都完全沒有") for i in range(1, 9)],
+            "negative",
+        ),
+    )
+    assert len(s_neg.sentiment_trace) == 1
+    s_neg_rev = open_review(s_neg)
+    low_vals = {i: (2 if i == 3 else 0) for i in range(1, 9)}
+    res_situational = confirm_review(
+        s_neg_rev, low_vals, expected_revision=s_neg_rev.revision, consent=True
+    )
+    obs_sit = analyze_affect_symptom_alignment(res_situational)
+    assert obs_sit["quadrant"] == "situational_distress" and obs_sit["divergent"]
+
+    # Masked somatic: neutral affect + identical or elevated confirmed score
+    s_neu = chat_turn(
+        new_conversation(),
+        "平淡講下，八項情況係咁",
+        custom_engine(
+            [update(i, 2, "八項情況係咁") for i in range(1, 9)],
+            "neutral",
+        ),
+    )
+    s_neu_rev = open_review(s_neu)
+    # Score invariance check: same confirmed low_vals must yield exact same total (2)
+    res_congruent_low = confirm_review(
+        s_neu_rev, low_vals, expected_revision=s_neu_rev.revision, consent=True
+    )
+    assert res_congruent_low.result.total == res_situational.result.total == 2
+    assert (
+        analyze_affect_symptom_alignment(res_congruent_low)["quadrant"]
+        == "congruent_low"
+    )
+
+    # Elevated confirmed total (>= 10) with neutral tone -> masked_somatic
+    high_vals = {i: 2 for i in range(1, 9)}
+    res_masked = confirm_review(
+        s_neu_rev, high_vals, expected_revision=s_neu_rev.revision, consent=True
+    )
+    obs_masked = analyze_affect_symptom_alignment(res_masked)
+    assert res_masked.result.total == 16
+    assert obs_masked["quadrant"] == "masked_somatic" and obs_masked["divergent"]
+
+    # Elevated confirmed total (>= 10) with negative tone -> congruent_elevated
+    res_cong_high = confirm_review(
+        s_neg_rev, high_vals, expected_revision=s_neg_rev.revision, consent=True
+    )
+    assert res_cong_high.result.total == 16
+    assert (
+        analyze_affect_symptom_alignment(res_cong_high)["quadrant"]
+        == "congruent_elevated"
+    )
+
+    # Safety interruption must wipe sentiment_trace completely
+    paused = chat_turn(s_neg, "[DEMO_INTERRUPT]", engine())
+    assert paused.phase == "PAUSED" and paused.sentiment_trace == ()
+
+
+def test_web_dual_channel_divergent_observation_bilingual(monkeypatch):
+    from pathlib import Path
+    from streamlit.testing.v1 import AppTest
+    from tests.test_app import click
+
+    monkeypatch.setenv("FYP_API_KEY", "test-only")
+    neutral_engine = Mock(
+        respond=Mock(
+            return_value=(
+                {
+                    "reply": "Got it.",
+                    "sentiment": "neutral",
+                    "updates": [
+                        update(i, 2, "Every symptom 8 days") for i in range(1, 9)
+                    ],
+                },
+                {"reported_model": "mock"},
+            )
+        )
+    )
+    monkeypatch.setattr(
+        "bilingual_provider.BilingualConversationProvider",
+        Mock(return_value=neutral_engine),
+    )
+    app = AppTest.from_file(str(Path(__file__).resolve().parents[1] / "app.py")).run()
+    click(app, "開始虛構對話")
+    app.chat_input[0].set_value("Every symptom 8 days").run()
+    click(app, "核對整理內容")
+    app.checkbox[0].check()
+    click(app, "確認並查看分數")
+    assert app.metric[0].value == "16 / 24"
+    assert any("平淡／隱性生理表達" in box.value for box in app.info)
+    app.selectbox(key="ui_language").select("en").run()
+    assert any("masked/neutral presentation" in box.value for box in app.info)
