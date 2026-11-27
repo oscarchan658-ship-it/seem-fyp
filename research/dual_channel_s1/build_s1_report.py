@@ -556,7 +556,7 @@ def build_reports(
 
     _add_p(
         doc,
-        f"Linear SVM and Logistic Regression improved test Macro-F1 by +{_f3(boot_svm_maj['mean_diff'])} over Majority (500-resample paired bootstrap 95% CI [{_f3(boot_svm_maj['ci95_low'])}, {_f3(boot_svm_maj['ci95_high'])}]) with virtually identical accuracy to each other (difference {_f3(boot_svm_lr['mean_diff'])}), though negative-class recall reached only {_f3(m_svm['negative_recall'])}.",
+        f"Linear SVM improved test Macro-F1 by +{_f3(boot_svm_maj['mean_diff'])} over Majority (500-resample paired bootstrap 95% CI [{_f3(boot_svm_maj['ci95_low'])}, {_f3(boot_svm_maj['ci95_high'])}]) and performed almost identically to Logistic Regression on test Macro-F1 (0.5607 vs. 0.5611; 95% CI [{_f3(boot_svm_lr['ci95_low'])}, +{_f3(boot_svm_lr['ci95_high'])}]), though negative-class recall reached only {_f3(m_svm['negative_recall'])}.",
     )
     _add_p(
         doc,
@@ -700,7 +700,7 @@ def build_reports(
 
     _add_p(
         doc,
-        "As shown in Table 4 and Figure 2(b), English-trained TF-IDF models defaulted to neutral on Chinese script (37.5% accuracy), whereas the connected LLM reached 95.8% in English and 91.7% in Chinese (three mild boundary disagreements where calm routine sentences or a mixed Cantonese complaint ending with '放假去打波都好投入' were labeled positive). More importantly, even 100% perfect sentiment achieved 0.0% screening accuracy on Situational Distress and 0.0% on Masked Somatic cases (50.0% overall), demonstrating why a dedicated symptom-extraction channel is essential.",
+        "As shown in Table 4 and Figure 2(b), English-trained TF-IDF models defaulted to neutral on Chinese script (37.5% accuracy), whereas the connected LLM reached 95.8% in English and 91.7% in Chinese (three mild boundary disagreements where calm routine sentences or a mixed Cantonese complaint ending with '放假去打波都好投入' were labeled positive). Notice that the English TF-IDF models appear to score 66.7%–83.3% on Situational Distress proxy accuracy only through a double error—failing to read Chinese complaints and defaulting to neutral—whereas once sentiment is recognized accurately (93.8%–100.0%), Situational Distress proxy accuracy collapses to 8.3% and 0.0%, and Masked Somatic proxy accuracy sits at 0.0% (50.0% overall). This confirms why a separate symptom-extraction channel is essential.",
     )
 
     # ==========================================================================
@@ -897,7 +897,7 @@ def build_reports(
 
     _add_p(
         doc,
-        "Across all four walkthroughs, the chatbot preserved exact original-language quotes, ignored out-of-window winter insomnia in Scenario 3 while respecting manual user score edits at review, and confirmed deterministic PHQ-8 totals. In Table 8, our Score Invariance check confirms at the software level that the local scoring function ignores stored sentiment labels completely (800/800 identical totals when flipping stored turn sentiments); note, however, that during live chat a single LLM call generates both the reply tone and candidate item updates, so their statistical independence in model generation is not claimed.",
+        "Across all four walkthroughs, the chatbot preserved exact original-language quotes, ignored out-of-window winter insomnia in Scenario 3 while respecting manual user score edits at review (changing item 4 fatigue from 1 to 2, updating the provisional total from 2/24 to the confirmed 3/24), and confirmed deterministic PHQ-8 totals. In Table 8, our Score Invariance check confirms at the software level that the local scoring function ignores stored sentiment labels completely (800/800 identical totals when flipping stored turn sentiments); note, however, that during live chat a single LLM call generates both the reply tone and candidate item updates, so their statistical independence in model generation is not claimed.",
     )
 
     _add_styled_table(
@@ -1012,9 +1012,9 @@ def build_reports(
         '[10] OpenAI, "Responses API Reference," OpenAI Platform Documentation, accessed Nov. 2026. https://platform.openai.com/docs/api-reference/responses. (Used for compatible HTTP request/response format; connected third-party gateway reported model identifier gpt-6.1-terra).',
         '[11] OpenAI, "Structured Model Outputs," OpenAI Platform Guide, accessed Nov. 2026. https://platform.openai.com/docs/guides/structured-outputs.',
         '[12] S. Rosenthal, N. Farra, and P. Nakov, "SemEval-2017 Task 4: Sentiment Analysis in Twitter," Proceedings of SemEval, pp. 502–518, 2017. doi: 10.18653/v1/S17-2088.',
-        '[13] K. Yang, S. Ji, T. Zhang, Q. Xie, Z. Kuang, and S. Ananiadou, "Towards Interpretable Mental Health Analysis with Large Language Models," Proceedings of EMNLP, pp. 6056–6077, 2023. doi: 10.18653/v1/2023.emnlp-main.370.',
+        '[13] K. Yang, S. Ji, T. Zhang, Q. Xie, Z. Kuang, and S. Ananiadou, "Towards Interpretable Mental Health Analysis with Large Language Models," Proceedings of EMNLP, pp. 6056–6077, 2023. doi: 10.18653/v1/2023.emnlp-main.370. https://aclanthology.org/2023.emnlp-main.370/.',
         '[14] Z. Fu, Y. C. Hsu, C. S. Chan, C. M. Lau, J. Liu, and P. S. F. Yip, "Efficacy of ChatGPT in Cantonese Sentiment Analysis: Comparative Study," Journal of Medical Internet Research, vol. 26, e51069, 2024. doi: 10.2196/51069. (Indexed structured abstract consulted via Europe PMC; PMID 38289662).',
-        '[15] J. Jiang et al., "Developing and Utilizing a Large-Scale Cantonese Dataset for Multi-Tasking in Large Language Models," Findings of EMNLP, pp. 1924–1944, 2025. doi: 10.18653/v1/2025.findings-emnlp.102.',
+        '[15] J. Jiang, A. K. Y. Truong, Y. Chen, Q. Bao, S. Wang, P. Chen, J. Wang, L. Kong, Y. Li, and C. Wu, "Developing and Utilizing a Large-Scale Cantonese Dataset for Multi-Tasking in Large Language Models," Findings of EMNLP, pp. 1924–1944, 2025. doi: 10.18653/v1/2025.findings-emnlp.102. https://aclanthology.org/2025.findings-emnlp.102/.',
     ]
     for ref in refs:
         p = doc.add_paragraph()
