@@ -422,7 +422,7 @@ def build_reports(
     )
     _add_p(
         doc,
-        "In healthcare chatbots, Laranjo et al. [4] found across 17 studies that structured state control remained standard because unconstrained generation risks unsafe behavior. Fitzpatrick et al. [5] showed feasibility for the Woebot CBT agent among 70 young adults while noting user frustration with rigid, repetitive replies and misunderstood free text. Geifman and El-Yaniv [6] framed selective classification as trading coverage against error risk among accepted predictions, while Guo et al. [7] showed that model confidence scores can be poorly calibrated. These findings directly motivate allowing natural multi-symptom input while abstaining on unclear wording and requiring user confirmation before scoring.",
+        "In healthcare chatbots, Laranjo et al. [4] found across 17 studies that structured state control remained standard because unconstrained generation risks unsafe behavior. Fitzpatrick et al. [5] showed feasibility for the Woebot CBT agent among 70 young adults while noting user frustration with rigid, repetitive replies and misunderstood free text. Geifman and El-Yaniv [6] framed selective classification as trading coverage against error risk among accepted predictions, while Guo et al. [7] showed that model confidence scores can be poorly calibrated. Recent LLM studies reinforce both the promise and boundaries of generative models in this setting: Yang et al. [13] evaluated LLMs across 11 mental-health and emotion datasets, finding that while ChatGPT generated readable explanations, zero-shot predictions still lagged behind domain-tuned encoders and remained sensitive to prompt phrasing. In the Hong Kong context, Fu et al. [14] (consulted via its structured PubMed/Europe PMC abstract) reported that GPT-3.5 and GPT-4 reached 92.1%–95.3% three-class sentiment accuracy across 6,169 Cantonese web-counseling messages versus 66.0%–70.9% for classical ML models, though still measuring message-level polarity rather than PHQ-8 symptom counts; meanwhile, Jiang et al. [15] documented how spoken–written divergence, unique Cantonese characters, and frequent Cantonese–English code-switching challenge standard Chinese NLP pipelines, motivating both our code-switched stress cases and local 7B model plans.",
     )
 
     # ==========================================================================
@@ -443,11 +443,50 @@ def build_reports(
 
     _add_p(
         doc,
-        "Before any external API request is sent, a lightweight pre-API filter checks for explicit demonstration interrupt markers; if triggered, it clears the session immediately without sending text over the network (serving as a workflow safety test rather than a clinical crisis detector). For normal messages, the chatbot communicates with a configured OpenAI-compatible Responses endpoint [10, 11] (which reports the model identifier gpt-6.1-terra via our third-party gateway) using a strict JSON output schema.",
+        "Before any external API request is sent, a lightweight pre-API filter checks for explicit demonstration interrupt markers; if triggered, it clears the session immediately without sending text over the network (serving as a workflow safety test rather than a clinical crisis detector). Because direct vendor API endpoints restrict regional student access from Hong Kong, normal messages are sent over HTTPS to a configured OpenAI-compatible Responses gateway [10, 11]. Our client requests model identifier gpt-6.1-terra with store=false, low reasoning effort, strict JSON-schema formatting, and a 3,200-token output cap (1,200 tokens for standalone sentiment), without setting an explicit temperature parameter so the server default applies. Because the gateway is operated by a third party, its underlying base-model weights, provider routing, and server-side sampling temperature cannot be audited independently and are recorded as an explicit system limitation.",
     )
     _add_p(
         doc,
-        "In the Affect Channel (Left Ear), the assistant labels each user turn as negative, neutral, positive, or unclear so it can offer a brief empathetic sentence before asking at most one follow-up question, while displaying turn-tone counts in the sidebar strictly as non-scoring context. In the Symptom Channel (Right Ear), each proposed PHQ-8 item update must attach a past-14-day timeframe label and a word-for-word substring quote from the user's message; local validation rejects any fabricated quote or out-of-window score. Vague phrases ('sometimes', '間唔中') or boundary-straddling ranges ('6–7 days') remain unresolved (null) so the chatbot asks a clarifying question. Once all eight items have valid proposals, the user inspects every quote and can edit any 0–3 dropdown in a batch review panel before ticking explicit confirmation. Only those eight confirmed integers are summed into the 0–24 PHQ-8 total, after which a post-session note highlights whether tone and symptom burden were aligned or divergent.",
+        "Table 2 summarizes the strict JSON output schema returned on each turn and the local deterministic rules checked before any candidate enters session state. In the Affect Channel (Left Ear), the turn sentiment label guides a brief empathetic acknowledgment and updates sidebar tone counts without ever entering score calculation. In the Symptom Channel (Right Ear), vague phrases ('sometimes', '間唔中') or boundary-straddling ranges ('6–7 days') remain null so the chatbot asks a focused follow-up. Once all eight items hold valid proposals, the user reviews every verbatim quote, edits any 0–3 dropdown if needed, and ticks explicit confirmation to sum the 0–24 PHQ-8 total.",
+    )
+
+    _add_styled_table(
+        doc,
+        ["JSON Output Field", "Allowed Type / Values", "Local Validation & State Rule"],
+        [
+            [
+                "reply",
+                "String (1–2,500 chars)",
+                "Non-empty assistant response in the active UI language; offers brief empathy on negative tone and asks at most one follow-up.",
+            ],
+            [
+                "sentiment",
+                "negative | neutral | positive | unclear",
+                "Appended to non-scoring turn trace for sidebar display and post-result comparison; never read by the PHQ-8 scorer.",
+            ],
+            [
+                "updates[].item_id",
+                "Integer 1..8 (unique per turn)",
+                "Maps to the eight PHQ-8 domains; duplicate or out-of-range item IDs reject the entire payload.",
+            ],
+            [
+                "updates[].frequency",
+                "Integer 0..3 or null",
+                "R1 mapping (0–1d→0, 2–6d→1, 7–11d→2, 12–14d→3); null triggers selective abstention and clears retracted items.",
+            ],
+            [
+                "updates[].timeframe",
+                "past_14_days | unclear | other",
+                "Any non-null frequency (0..3) MUST carry past_14_days; older or unclear windows with integer scores are rejected.",
+            ],
+            [
+                "updates[].quote & turn_id",
+                "Non-empty string & user turn ID",
+                "Quote must appear character-for-character inside the referenced user message, blocking fabricated citations.",
+            ],
+        ],
+        [1.45, 1.55, 3.50],
+        "Table 2. Structured Turn Output Schema and Deterministic Local Validation Rules.",
     )
 
     # ==========================================================================
@@ -512,7 +551,7 @@ def build_reports(
             ],
         ],
         [2.10, 0.78, 0.72, 0.80, 0.88, 0.68, 0.54],
-        "Table 2. Experiment 1A Held-Out Results on Official TweetEval Sentiment Splits (Test N = 12,284).",
+        "Table 3. Experiment 1A Held-Out Results on Official TweetEval Sentiment Splits (Test N = 12,284).",
     )
 
     _add_p(
@@ -521,7 +560,7 @@ def build_reports(
     )
     _add_p(
         doc,
-        "Because Semester 1 does not involve human-subject data, Experiment 1B designed a 48-sentence controlled bilingual stress test (24 English + 24 Traditional Chinese/Cantonese; 12 sentences in each of Congruent Low, Situational Distress, Masked Somatic, and Congruent Elevated), where both group members checked each sentence's reference tone label and underlying PHQ-8 profile total. Table 3 and Figure 2 compare sentiment accuracy against the naive screening rule 'Negative Sentiment => PHQ-8 >= 10'.",
+        "Because Semester 1 does not involve human-subject data, Experiment 1B designed a 48-sentence controlled bilingual stress test (24 English + 24 Traditional Chinese/Cantonese; 12 sentences in each of Congruent Low, Situational Distress, Masked Somatic, and Congruent Elevated), where both group members checked each sentence's reference tone label and underlying PHQ-8 profile total. Table 4 and Figure 2 compare sentiment accuracy against the naive screening rule 'Negative Sentiment => PHQ-8 >= 10'.",
     )
 
     _add_styled_table(
@@ -649,7 +688,7 @@ def build_reports(
             ],
         ],
         [1.90, 0.68, 0.68, 0.70, 0.82, 0.86, 0.86],
-        "Table 3. Experiment 1B Controlled Bilingual Stress Test (N = 48; All Columns Report Accuracy — Higher is Better).",
+        "Table 4. Experiment 1B Controlled Bilingual Stress Test (N = 48; All Columns Report Accuracy — Higher is Better).",
     )
 
     _add_figure(
@@ -661,7 +700,7 @@ def build_reports(
 
     _add_p(
         doc,
-        "As shown in Table 3 and Figure 2(b), English-trained TF-IDF models defaulted to neutral on Chinese script (37.5% accuracy), whereas the connected LLM reached 95.8% in English and 91.7% in Chinese (three mild boundary disagreements where calm routine sentences or a mixed Cantonese complaint ending with '放假去打波都好投入' were labeled positive). More importantly, even 100% perfect sentiment achieved 0.0% screening accuracy on Situational Distress and 0.0% on Masked Somatic cases (50.0% overall), demonstrating why a dedicated symptom-extraction channel is essential.",
+        "As shown in Table 4 and Figure 2(b), English-trained TF-IDF models defaulted to neutral on Chinese script (37.5% accuracy), whereas the connected LLM reached 95.8% in English and 91.7% in Chinese (three mild boundary disagreements where calm routine sentences or a mixed Cantonese complaint ending with '放假去打波都好投入' were labeled positive). More importantly, even 100% perfect sentiment achieved 0.0% screening accuracy on Situational Distress and 0.0% on Masked Somatic cases (50.0% overall), demonstrating why a dedicated symptom-extraction channel is essential.",
     )
 
     # ==========================================================================
@@ -741,7 +780,7 @@ def build_reports(
             ],
         ],
         [1.82, 0.60, 0.82, 0.68, 0.68, 0.65, 0.65, 0.60],
-        "Table 4. Experiment 2 Symptom Extraction and Selective Abstention Across 80 Bilingual Test Utterances.",
+        "Table 5. Experiment 2 Symptom Extraction and Selective Abstention Across 80 Bilingual Test Utterances.",
     )
 
     _add_figure(
@@ -753,7 +792,7 @@ def build_reports(
 
     _add_p(
         doc,
-        "Table 4 and Figure 3 illustrate why simple classifiers struggle with conversational screening. Forced TF-IDF + Logistic Regression guessed an integer on every turn (0.0% abstention), falling to 12.5% accuracy on the 16 HK stress cases; even with a 0.60 confidence threshold (56.2% overall), bag-of-words features could not distinguish '12 days during past quarantine' from '12 days in the past two weeks'. Conversely, our offline Rule Baseline (designed for bare option strings where it previously accepted 24/64 template inputs) accepted 0/80 multi-clause chat sentences, leaving selective risk undefined (N/A). Our connected chatbot achieved 98.8% (79/80) on this structured rule-compliance set (93.8% on the 16 stress cases) with 0.0% false acceptances and 100% verbatim quote matches—though accuracy on unscripted real-user conversations would naturally be lower. Table 5 examines four representative failure mechanisms.",
+        "Table 5 and Figure 3 illustrate why simple classifiers struggle with conversational screening. Forced TF-IDF + Logistic Regression guessed an integer on every turn (0.0% abstention), falling to 12.5% accuracy on the 16 HK stress cases; even with a 0.60 confidence threshold (56.2% overall), bag-of-words features could not distinguish '12 days during past quarantine' from '12 days in the past two weeks'. Conversely, our offline Rule Baseline (designed for bare option strings where it previously accepted 24/64 template inputs) accepted 0/80 multi-clause chat sentences, leaving selective risk undefined (N/A). Our connected chatbot achieved 98.8% (79/80) on this structured rule-compliance set (93.8% on the 16 stress cases) with 0.0% false acceptances and 100% verbatim quote matches—though accuracy on unscripted real-user conversations would naturally be lower. Table 6 examines four representative failure mechanisms.",
     )
 
     _add_styled_table(
@@ -791,7 +830,7 @@ def build_reports(
             ],
         ],
         [2.05, 0.75, 0.98, 2.72],
-        "Table 5. Error Analysis of Representative Failure Cases on Hong Kong Code-Switched and Colloquial Inputs.",
+        "Table 6. Error Analysis of Representative Failure Cases on Hong Kong Code-Switched and Colloquial Inputs.",
     )
 
     # ==========================================================================
@@ -803,7 +842,7 @@ def build_reports(
     )
     _add_p(
         doc,
-        "To address RQ3, we ran four live multi-turn bilingual screening scenarios end-to-end through the chatbot (Table 6 and Figure 4) and verified our local scoring and safety rules across 234 automated tests (Table 7).",
+        "To address RQ3, we ran four live multi-turn bilingual screening scenarios end-to-end through the chatbot (Table 7 and Figure 4) and verified our local scoring and safety rules across 234 automated tests (Table 8).",
     )
 
     readable_names = {
@@ -846,19 +885,19 @@ def build_reports(
         ],
         s_rows,
         [2.25, 0.50, 0.52, 0.90, 1.15, 1.18],
-        "Table 6. Summary of Four Live Multi-Turn Bilingual Screening Walkthroughs.",
+        "Table 7. Summary of Four Live Multi-Turn Bilingual Screening Walkthroughs.",
     )
 
     _add_figure(
         doc,
-        fig_dir / "fig4_chatbot_4stage_flow.png",
-        "Figure 4. Four-stage walkthrough of Scenario 2 illustrating multi-symptom input, follow-up clarification on 'occasionally', quote-backed batch review, and confirmed 11/24 score with Masked Somatic note.",
+        fig_dir / "fig4_live_streamlit_ui.png",
+        "Figure 4. Actual Streamlit interface screenshots from Scenario 2: (left) multi-turn chat, non-scoring sidebar affect counter, and quote-backed batch review panel; (right) confirmed 11/24 score with Masked Somatic comparison banner.",
         width_in=6.35,
     )
 
     _add_p(
         doc,
-        "Across all four walkthroughs, the chatbot preserved exact original-language quotes, ignored out-of-window winter insomnia in Scenario 3 while respecting manual user score edits at review, and confirmed deterministic PHQ-8 totals. In Table 7, our Score Invariance check confirms at the software level that the local scoring function ignores stored sentiment labels completely (800/800 identical totals when flipping stored turn sentiments); note, however, that during live chat a single LLM call generates both the reply tone and candidate item updates, so their statistical independence in model generation is not claimed.",
+        "Across all four walkthroughs, the chatbot preserved exact original-language quotes, ignored out-of-window winter insomnia in Scenario 3 while respecting manual user score edits at review, and confirmed deterministic PHQ-8 totals. In Table 8, our Score Invariance check confirms at the software level that the local scoring function ignores stored sentiment labels completely (800/800 identical totals when flipping stored turn sentiments); note, however, that during live chat a single LLM call generates both the reply tone and candidate item updates, so their statistical independence in model generation is not claimed.",
     )
 
     _add_styled_table(
@@ -891,7 +930,7 @@ def build_reports(
             ],
         ],
         [2.75, 1.65, 1.10, 1.00],
-        "Table 7. Automated Verification of Scoring Boundaries, Quote Provenance, and Pre-API Interrupts.",
+        "Table 8. Automated Verification of Scoring Boundaries, Quote Provenance, and Pre-API Interrupts.",
     )
 
     # ==========================================================================
@@ -944,7 +983,7 @@ def build_reports(
             ],
         ],
         [1.15, 3.45, 1.90],
-        "Table 8. Semester 2 Research Timeline (January – April 2027).",
+        "Table 9. Semester 2 Research Timeline (January – April 2027).",
         keep_together=True,
     )
 
@@ -973,6 +1012,9 @@ def build_reports(
         '[10] OpenAI, "Responses API Reference," OpenAI Platform Documentation, accessed Nov. 2026. https://platform.openai.com/docs/api-reference/responses. (Used for compatible HTTP request/response format; connected third-party gateway reported model identifier gpt-6.1-terra).',
         '[11] OpenAI, "Structured Model Outputs," OpenAI Platform Guide, accessed Nov. 2026. https://platform.openai.com/docs/guides/structured-outputs.',
         '[12] S. Rosenthal, N. Farra, and P. Nakov, "SemEval-2017 Task 4: Sentiment Analysis in Twitter," Proceedings of SemEval, pp. 502–518, 2017. doi: 10.18653/v1/S17-2088.',
+        '[13] K. Yang, S. Ji, T. Zhang, Q. Xie, Z. Kuang, and S. Ananiadou, "Towards Interpretable Mental Health Analysis with Large Language Models," Proceedings of EMNLP, pp. 6056–6077, 2023. doi: 10.18653/v1/2023.emnlp-main.370.',
+        '[14] Z. Fu, Y. C. Hsu, C. S. Chan, C. M. Lau, J. Liu, and P. S. F. Yip, "Efficacy of ChatGPT in Cantonese Sentiment Analysis: Comparative Study," Journal of Medical Internet Research, vol. 26, e51069, 2024. doi: 10.2196/51069. (Indexed structured abstract consulted via Europe PMC; PMID 38289662).',
+        '[15] J. Jiang et al., "Developing and Utilizing a Large-Scale Cantonese Dataset for Multi-Tasking in Large Language Models," Findings of EMNLP, pp. 1924–1944, 2025. doi: 10.18653/v1/2025.findings-emnlp.102.',
     ]
     for ref in refs:
         p = doc.add_paragraph()
@@ -988,7 +1030,7 @@ def build_reports(
 
     reopened = Document(str(docx_path))
     assert len(reopened.paragraphs) > 30
-    assert len(reopened.tables) == 9
+    assert len(reopened.tables) == 10
     assert any(
         "Sentiment Analysis for Depression Detection" in p.text
         for p in reopened.paragraphs

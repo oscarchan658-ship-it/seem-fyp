@@ -36,7 +36,7 @@ Kroenke et al. [1] evaluated PHQ-8 in a survey of 198,678 adults, reporting simi
 
 For sentiment classification, TweetEval [3] standardizes SemEval-2017 Twitter splits [12] across negative, neutral, and positive labels using macro-averaged recall. GoEmotions [9] annotates 58,000 Reddit comments with 27 emotion categories, showing finer emotional granularity, yet neither dataset contains past-two-week symptom frequencies. Clinical interview corpora such as DAIC-WOZ [8] include PHQ-8 scores alongside interview transcripts, but require institutional licensing beyond Semester 1.
 
-In healthcare chatbots, Laranjo et al. [4] found across 17 studies that structured state control remained standard because unconstrained generation risks unsafe behavior. Fitzpatrick et al. [5] showed feasibility for the Woebot CBT agent among 70 young adults while noting user frustration with rigid, repetitive replies and misunderstood free text. Geifman and El-Yaniv [6] framed selective classification as trading coverage against error risk among accepted predictions, while Guo et al. [7] showed that model confidence scores can be poorly calibrated. These findings directly motivate allowing natural multi-symptom input while abstaining on unclear wording and requiring user confirmation before scoring.
+In healthcare chatbots, Laranjo et al. [4] found across 17 studies that structured state control remained standard because unconstrained generation risks unsafe behavior. Fitzpatrick et al. [5] showed feasibility for the Woebot CBT agent among 70 young adults while noting user frustration with rigid, repetitive replies and misunderstood free text. Geifman and El-Yaniv [6] framed selective classification as trading coverage against error risk among accepted predictions, while Guo et al. [7] showed that model confidence scores can be poorly calibrated. Recent LLM studies reinforce both the promise and boundaries of generative models in this setting: Yang et al. [13] evaluated LLMs across 11 mental-health and emotion datasets, finding that while ChatGPT generated readable explanations, zero-shot predictions still lagged behind domain-tuned encoders and remained sensitive to prompt phrasing. In the Hong Kong context, Fu et al. [14] (consulted via its structured PubMed/Europe PMC abstract) reported that GPT-3.5 and GPT-4 reached 92.1%–95.3% three-class sentiment accuracy across 6,169 Cantonese web-counseling messages versus 66.0%–70.9% for classical ML models, though still measuring message-level polarity rather than PHQ-8 symptom counts; meanwhile, Jiang et al. [15] documented how spoken–written divergence, unique Cantonese characters, and frequent Cantonese–English code-switching challenge standard Chinese NLP pipelines, motivating both our code-switched stress cases and local 7B model plans.
 
 ## 3. System Design and Implementation
 
@@ -44,49 +44,51 @@ Our main deliverable is a connected Streamlit web application supporting Traditi
 
 Figure 1. Workflow of the Dual-Channel Preliminary Screening Chatbot, keeping emotional tone separate from quote-backed PHQ-8 symptom extraction and user-confirmed 0–24 scoring.
 
-Before any external API request is sent, a lightweight pre-API filter checks for explicit demonstration interrupt markers; if triggered, it clears the session immediately without sending text over the network (serving as a workflow safety test rather than a clinical crisis detector). For normal messages, the chatbot communicates with a configured OpenAI-compatible Responses endpoint [10, 11] (which reports the model identifier gpt-6.1-terra via our third-party gateway) using a strict JSON output schema.
+Before any external API request is sent, a lightweight pre-API filter checks for explicit demonstration interrupt markers; if triggered, it clears the session immediately without sending text over the network (serving as a workflow safety test rather than a clinical crisis detector). Because direct vendor API endpoints restrict regional student access from Hong Kong, normal messages are sent over HTTPS to a configured OpenAI-compatible Responses gateway [10, 11]. Our client requests model identifier gpt-6.1-terra with store=false, low reasoning effort, strict JSON-schema formatting, and a 3,200-token output cap (1,200 tokens for standalone sentiment), without setting an explicit temperature parameter so the server default applies. Because the gateway is operated by a third party, its underlying base-model weights, provider routing, and server-side sampling temperature cannot be audited independently and are recorded as an explicit system limitation.
 
-In the Affect Channel (Left Ear), the assistant labels each user turn as negative, neutral, positive, or unclear so it can offer a brief empathetic sentence before asking at most one follow-up question, while displaying turn-tone counts in the sidebar strictly as non-scoring context. In the Symptom Channel (Right Ear), each proposed PHQ-8 item update must attach a past-14-day timeframe label and a word-for-word substring quote from the user's message; local validation rejects any fabricated quote or out-of-window score. Vague phrases ('sometimes', '間唔中') or boundary-straddling ranges ('6–7 days') remain unresolved (null) so the chatbot asks a clarifying question. Once all eight items have valid proposals, the user inspects every quote and can edit any 0–3 dropdown in a batch review panel before ticking explicit confirmation. Only those eight confirmed integers are summed into the 0–24 PHQ-8 total, after which a post-session note highlights whether tone and symptom burden were aligned or divergent.
+Table 2 summarizes the strict JSON output schema returned on each turn and the local deterministic rules checked before any candidate enters session state. In the Affect Channel (Left Ear), the turn sentiment label guides a brief empathetic acknowledgment and updates sidebar tone counts without ever entering score calculation. In the Symptom Channel (Right Ear), vague phrases ('sometimes', '間唔中') or boundary-straddling ranges ('6–7 days') remain null so the chatbot asks a focused follow-up. Once all eight items hold valid proposals, the user reviews every verbatim quote, edits any 0–3 dropdown if needed, and ticks explicit confirmation to sum the 0–24 PHQ-8 total.
+
+Table 2. Structured Turn Output Schema and Deterministic Local Validation Rules.
 
 ## 4. Experiment 1: Sentiment Baselines and Controlled Mismatch Stress Test
 
 To answer RQ1, Experiment 1A trained four classical scikit-learn baselines on the pinned TweetEval sentiment splits (45,615 train, 2,000 validation, 12,284 held-out test) [3]: Majority, Multinomial Naive Bayes, Logistic Regression, and Linear SVM, using TF-IDF word unigrams and bigrams (up to 50,000 features) selected on validation Macro-F1.
 
-Table 2. Experiment 1A Held-Out Results on Official TweetEval Sentiment Splits (Test N = 12,284).
+Table 3. Experiment 1A Held-Out Results on Official TweetEval Sentiment Splits (Test N = 12,284).
 
 Linear SVM and Logistic Regression improved test Macro-F1 by +0.344 over Majority (500-resample paired bootstrap 95% CI [0.334, 0.353]) with virtually identical accuracy to each other (difference -0.000), though negative-class recall reached only 0.450.
 
-Because Semester 1 does not involve human-subject data, Experiment 1B designed a 48-sentence controlled bilingual stress test (24 English + 24 Traditional Chinese/Cantonese; 12 sentences in each of Congruent Low, Situational Distress, Masked Somatic, and Congruent Elevated), where both group members checked each sentence's reference tone label and underlying PHQ-8 profile total. Table 3 and Figure 2 compare sentiment accuracy against the naive screening rule 'Negative Sentiment => PHQ-8 >= 10'.
+Because Semester 1 does not involve human-subject data, Experiment 1B designed a 48-sentence controlled bilingual stress test (24 English + 24 Traditional Chinese/Cantonese; 12 sentences in each of Congruent Low, Situational Distress, Masked Somatic, and Congruent Elevated), where both group members checked each sentence's reference tone label and underlying PHQ-8 profile total. Table 4 and Figure 2 compare sentiment accuracy against the naive screening rule 'Negative Sentiment => PHQ-8 >= 10'.
 
-Table 3. Experiment 1B Controlled Bilingual Stress Test (N = 48; All Columns Report Accuracy — Higher is Better).
+Table 4. Experiment 1B Controlled Bilingual Stress Test (N = 48; All Columns Report Accuracy — Higher is Better).
 
 Figure 2. (a) Public TweetEval test scores. (b) Controlled bilingual stress test showing that even 94%–100% sentiment accuracy drops to 0%–8% screening accuracy on Situational Distress and Masked Somatic cases.
 
-As shown in Table 3 and Figure 2(b), English-trained TF-IDF models defaulted to neutral on Chinese script (37.5% accuracy), whereas the connected LLM reached 95.8% in English and 91.7% in Chinese (three mild boundary disagreements where calm routine sentences or a mixed Cantonese complaint ending with '放假去打波都好投入' were labeled positive). More importantly, even 100% perfect sentiment achieved 0.0% screening accuracy on Situational Distress and 0.0% on Masked Somatic cases (50.0% overall), demonstrating why a dedicated symptom-extraction channel is essential.
+As shown in Table 4 and Figure 2(b), English-trained TF-IDF models defaulted to neutral on Chinese script (37.5% accuracy), whereas the connected LLM reached 95.8% in English and 91.7% in Chinese (three mild boundary disagreements where calm routine sentences or a mixed Cantonese complaint ending with '放假去打波都好投入' were labeled positive). More importantly, even 100% perfect sentiment achieved 0.0% screening accuracy on Situational Distress and 0.0% on Masked Somatic cases (50.0% overall), demonstrating why a dedicated symptom-extraction channel is essential.
 
 ## 5. Experiment 2: Bilingual Symptom Extraction, Abstention, and Error Analysis
 
 To answer RQ2, we constructed an 80-utterance bilingual test set balanced across the eight PHQ-8 domains (40 English + 40 Cantonese/Traditional Chinese; 40 resolvable answers + 40 must-abstain inputs) and verified zero SHA-256 text overlap against a separate 320-sentence bilingual training set (80 per category 0–3) used to fit a word+character TF-IDF + 5-fold calibrated Logistic Regression baseline. Alongside 64 standard cases (canonical choices, exact day counts, colloquial answers, timeframe contrasts, vague words like 'sometimes'/'間唔中', past-year episodes, boundary-crossing '6–7 days', and pure venting), we included 16 harder Hong Kong student stress cases with Cantonese–English code-switching ('呢 two weeks 逢禮拜一至五返 intern 都 tired 到死'), sarcasm, weekly rates ('三至四晚一個禮拜' = 6–8 nights straddling 6|7), and past-fortnight traps ('上次 mid-term 嗰 two weeks').
 
-Table 4. Experiment 2 Symptom Extraction and Selective Abstention Across 80 Bilingual Test Utterances.
+Table 5. Experiment 2 Symptom Extraction and Selective Abstention Across 80 Bilingual Test Utterances.
 
 Figure 3. (a) Risk–Coverage curve on 80 bilingual turns. (b) Accuracy comparison between the 64 standard cases and 16 Hong Kong code-switched & trap stress cases.
 
-Table 4 and Figure 3 illustrate why simple classifiers struggle with conversational screening. Forced TF-IDF + Logistic Regression guessed an integer on every turn (0.0% abstention), falling to 12.5% accuracy on the 16 HK stress cases; even with a 0.60 confidence threshold (56.2% overall), bag-of-words features could not distinguish '12 days during past quarantine' from '12 days in the past two weeks'. Conversely, our offline Rule Baseline (designed for bare option strings where it previously accepted 24/64 template inputs) accepted 0/80 multi-clause chat sentences, leaving selective risk undefined (N/A). Our connected chatbot achieved 98.8% (79/80) on this structured rule-compliance set (93.8% on the 16 stress cases) with 0.0% false acceptances and 100% verbatim quote matches—though accuracy on unscripted real-user conversations would naturally be lower. Table 5 examines four representative failure mechanisms.
+Table 5 and Figure 3 illustrate why simple classifiers struggle with conversational screening. Forced TF-IDF + Logistic Regression guessed an integer on every turn (0.0% abstention), falling to 12.5% accuracy on the 16 HK stress cases; even with a 0.60 confidence threshold (56.2% overall), bag-of-words features could not distinguish '12 days during past quarantine' from '12 days in the past two weeks'. Conversely, our offline Rule Baseline (designed for bare option strings where it previously accepted 24/64 template inputs) accepted 0/80 multi-clause chat sentences, leaving selective risk undefined (N/A). Our connected chatbot achieved 98.8% (79/80) on this structured rule-compliance set (93.8% on the 16 stress cases) with 0.0% false acceptances and 100% verbatim quote matches—though accuracy on unscripted real-user conversations would naturally be lower. Table 6 examines four representative failure mechanisms.
 
-Table 5. Error Analysis of Representative Failure Cases on Hong Kong Code-Switched and Colloquial Inputs.
+Table 6. Error Analysis of Representative Failure Cases on Hong Kong Code-Switched and Colloquial Inputs.
 
 ## 6. Experiment 3: Multi-Turn Chatbot Walkthroughs and Safety Verification
 
-To address RQ3, we ran four live multi-turn bilingual screening scenarios end-to-end through the chatbot (Table 6 and Figure 4) and verified our local scoring and safety rules across 234 automated tests (Table 7).
+To address RQ3, we ran four live multi-turn bilingual screening scenarios end-to-end through the chatbot (Table 7 and Figure 4) and verified our local scoring and safety rules across 234 automated tests (Table 8).
 
-Table 6. Summary of Four Live Multi-Turn Bilingual Screening Walkthroughs.
+Table 7. Summary of Four Live Multi-Turn Bilingual Screening Walkthroughs.
 
-Figure 4. Four-stage walkthrough of Scenario 2 illustrating multi-symptom input, follow-up clarification on 'occasionally', quote-backed batch review, and confirmed 11/24 score with Masked Somatic note.
+Figure 4. Actual Streamlit interface screenshots from Scenario 2: (left) multi-turn chat, non-scoring sidebar affect counter, and quote-backed batch review panel; (right) confirmed 11/24 score with Masked Somatic comparison banner.
 
-Across all four walkthroughs, the chatbot preserved exact original-language quotes, ignored out-of-window winter insomnia in Scenario 3 while respecting manual user score edits at review, and confirmed deterministic PHQ-8 totals. In Table 7, our Score Invariance check confirms at the software level that the local scoring function ignores stored sentiment labels completely (800/800 identical totals when flipping stored turn sentiments); note, however, that during live chat a single LLM call generates both the reply tone and candidate item updates, so their statistical independence in model generation is not claimed.
+Across all four walkthroughs, the chatbot preserved exact original-language quotes, ignored out-of-window winter insomnia in Scenario 3 while respecting manual user score edits at review, and confirmed deterministic PHQ-8 totals. In Table 8, our Score Invariance check confirms at the software level that the local scoring function ignores stored sentiment labels completely (800/800 identical totals when flipping stored turn sentiments); note, however, that during live chat a single LLM call generates both the reply tone and candidate item updates, so their statistical independence in model generation is not claimed.
 
-Table 7. Automated Verification of Scoring Boundaries, Quote Provenance, and Pre-API Interrupts.
+Table 8. Automated Verification of Scoring Boundaries, Quote Provenance, and Pre-API Interrupts.
 
 ## 7. Limitations and Practical Challenges
 
@@ -98,7 +100,7 @@ Table 7. Automated Verification of Scoring Boundaries, Quote Provenance, and Pre
 
 ## 8. Semester 2 Plan, Work Division, and Conclusion
 
-Table 8. Semester 2 Research Timeline (January – April 2027).
+Table 9. Semester 2 Research Timeline (January – April 2027).
 
 Work Division: LEE Ka Tung (1155212062) led literature review, TweetEval dataset preparation, classical ML baselines, and bilingual evaluation analysis; CHAN Kin Long (1155212039) led PHQ-8 scoring/safety boundary rules, multi-turn dialogue state management, and bilingual Streamlit UI integration, with both members jointly reviewing experiments and co-writing this report under Prof. Helen Meng's supervision.
 
@@ -129,3 +131,9 @@ Conclusion: In conclusion, Semester 1 produced a working bilingual Dual-Channel 
 [11] OpenAI, "Structured Model Outputs," OpenAI Platform Guide, accessed Nov. 2026. https://platform.openai.com/docs/guides/structured-outputs.
 
 [12] S. Rosenthal, N. Farra, and P. Nakov, "SemEval-2017 Task 4: Sentiment Analysis in Twitter," Proceedings of SemEval, pp. 502–518, 2017. doi: 10.18653/v1/S17-2088.
+
+[13] K. Yang, S. Ji, T. Zhang, Q. Xie, Z. Kuang, and S. Ananiadou, "Towards Interpretable Mental Health Analysis with Large Language Models," Proceedings of EMNLP, pp. 6056–6077, 2023. doi: 10.18653/v1/2023.emnlp-main.370.
+
+[14] Z. Fu, Y. C. Hsu, C. S. Chan, C. M. Lau, J. Liu, and P. S. F. Yip, "Efficacy of ChatGPT in Cantonese Sentiment Analysis: Comparative Study," Journal of Medical Internet Research, vol. 26, e51069, 2024. doi: 10.2196/51069. (Indexed structured abstract consulted via Europe PMC; PMID 38289662).
+
+[15] J. Jiang et al., "Developing and Utilizing a Large-Scale Cantonese Dataset for Multi-Tasking in Large Language Models," Findings of EMNLP, pp. 1924–1944, 2025. doi: 10.18653/v1/2025.findings-emnlp.102.

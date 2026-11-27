@@ -1593,171 +1593,207 @@ def generate_all_figures(summary: dict, outdir: Path) -> list[Path]:
     return paths
 
 
+def _bboxes_intersect(b1, b2, pad: float = 2.0) -> bool:
+    return not (
+        b1.x1 + pad <= b2.x0
+        or b2.x1 + pad <= b1.x0
+        or b1.y1 + pad <= b2.y0
+        or b2.y1 + pad <= b1.y0
+    )
+
+
 def _render_clean_fig1(outdir: Path) -> Path:
-    """Clean, large-font workflow diagram without Python function or variable names."""
-    fig, ax = plt.subplots(figsize=(11.5, 5.0))
+    """Spacious, pixel-verified workflow diagram with zero text overflow or overlap."""
+    fig, ax = plt.subplots(figsize=(12.2, 5.8))
+    fig.subplots_adjust(left=0.01, right=0.99, bottom=0.02, top=0.90)
     ax.set_xlim(0, 100)
-    ax.set_ylim(0, 56)
+    ax.set_ylim(0, 64)
     ax.axis("off")
 
-    ax.text(
+    title_art = ax.text(
         50,
-        53.2,
+        61.2,
         "Dual-Channel Bilingual Preliminary Screening Chatbot Workflow",
         ha="center",
         va="center",
-        fontsize=14.0,
+        fontsize=13.5,
         fontweight="bold",
         color=NAVY,
     )
+
+    box_records = []
+    free_texts = [title_art]
 
     def box(x, y, w, h, title, body, fc, ec, title_color=NAVY):
         p = FancyBboxPatch(
             (x, y),
             w,
             h,
-            boxstyle="round,pad=0.6,rounding_size=1.4",
+            boxstyle="round,pad=0.5,rounding_size=1.3",
             facecolor=fc,
             edgecolor=ec,
             linewidth=1.8,
         )
         ax.add_patch(p)
-        ax.text(
+        t_title = ax.text(
             x + w / 2,
-            y + h - 3.2,
+            y + h - 2.2,
             title,
             ha="center",
             va="top",
-            fontsize=11.0,
+            fontsize=10.6,
             fontweight="bold",
             color=title_color,
         )
-        ax.text(
+        t_body = ax.text(
             x + w / 2,
-            y + (h - 4.2) / 2,
+            y + (h - 4.6) / 2,
             body,
             ha="center",
             va="center",
-            fontsize=9.6,
+            fontsize=9.1,
             color="#222222",
-            linespacing=1.32,
+            linespacing=1.30,
         )
+        box_records.append((title, p, t_title, t_body))
 
-    def arrow(x1, y1, x2, y2, col=NAVY, style="-|>"):
+    def arrow(x1, y1, x2, y2, col=NAVY):
         ax.add_patch(
             FancyArrowPatch(
                 (x1, y1),
                 (x2, y2),
-                arrowstyle=style,
+                arrowstyle="-|>",
                 mutation_scale=15,
                 linewidth=1.8,
                 color=col,
             )
         )
 
-    # Left column: Input & Safety Filter
+    # Left column: User Message (top) -> Safety Filter (bottom)
     box(
-        2,
-        29,
-        20,
-        19,
+        1.5,
+        36.0,
+        20.5,
+        20.5,
         "1. User Message",
         "Natural Cantonese,\nTraditional Chinese,\nor English chat\n(multi-topic allowed)",
         "#f3f7fc",
         STEEL,
     )
     box(
-        2,
-        5,
-        20,
-        18,
+        1.5,
+        4.0,
+        20.5,
+        21.0,
         "2. Safety Filter",
         "Pre-API check blocks\ndemo interrupt markers\nand clears session\nbefore model call",
         "#fdf3ef",
         ORANGE,
         title_color="#9c3d00",
     )
-    arrow(12, 29, 12, 23.4, col=NAVY)
+    arrow(11.75, 35.3, 11.75, 25.8, col=NAVY)
 
-    # Middle column: Two Channels
+    # Middle column: Wide gap between 3B (y=4..24) and 3A (y=36.5..56.5) for Firewall banner!
     box(
-        28,
-        31,
-        36,
-        17,
+        27.5,
+        36.5,
+        38.5,
+        20.0,
         "3A. Affect Channel (Left Ear)",
         "• Tracks turn-level emotional tone\n• Guides brief, polite empathy in reply\n• Never supplies or alters symptom scores",
         "#eef6fb",
         STEEL,
     )
     box(
-        28,
-        5,
-        36,
-        19,
+        27.5,
+        4.0,
+        38.5,
+        20.5,
         "3B. Symptom Channel (Right Ear)",
-        "• Extracts 8 PHQ-8 items (past 14 days)\n• Verifies exact word-for-word user quote\n• Maps day counts (0–1→0, 2–6→1, 7–11→2, 12–14→3)\n• Abstains & asks follow-up when vague",
+        "• Extracts 8 PHQ-8 items (past 14 days)\n• Verifies word-for-word user quote\n• Maps day counts (0–1→0, 2–6→1, 7–11→2, 12–14→3)\n• Abstains & asks follow-up when vague",
         "#edf8f4",
         TEAL,
         title_color="#0f6b50",
     )
-    arrow(22.3, 15.5, 27.6, 38.0, col=STEEL)
-    arrow(22.3, 13.0, 27.6, 14.5, col=TEAL)
+    arrow(22.6, 17.5, 26.8, 45.0, col=STEEL)
+    arrow(22.6, 13.5, 26.8, 14.0, col=TEAL)
 
-    # Scoring boundary line between 3A and 3B/4
-    ax.plot([27, 98], [27.2, 27.2], linestyle="--", linewidth=2.0, color=FIREWALL_RED)
-    ax.text(
-        63,
-        28.1,
-        "Scoring Boundary: Emotional Tone Never Enters PHQ-8 Calculation",
+    # Spacious Scoring Boundary band cleanly centered at y = 30.5 (well clear of y=24.5 and y=36.5, left of x=85 arrow!)
+    ax.plot(
+        [26.8, 98.5], [30.5, 30.5], linestyle="--", linewidth=2.0, color=FIREWALL_RED
+    )
+    fw_text = ax.text(
+        53.5,
+        30.5,
+        "Scoring Boundary: Emotional Tone Never Enters PHQ-8 Score",
         ha="center",
-        va="bottom",
-        fontsize=9.6,
+        va="center",
+        fontsize=9.1,
         fontweight="bold",
         color=FIREWALL_RED,
         bbox={
-            "boxstyle": "round,pad=0.2",
-            "facecolor": "white",
-            "edgecolor": FIREWALL_RED,
-            " lw": 0.8,
-        }
-        if False
-        else {
-            "boxstyle": "round,pad=0.22",
+            "boxstyle": "round,pad=0.30",
             "facecolor": "#fff7f7",
             "edgecolor": FIREWALL_RED,
-            "linewidth": 0.9,
+            "linewidth": 1.0,
         },
     )
+    free_texts.append(fw_text)
 
-    # Right column: Review, Scoring & Post-Session Note
+    # Right column: Review & Score (bottom) + Post-Session Note (top)
     box(
-        70,
-        5,
-        28,
-        19,
+        71.5,
+        4.0,
+        27.0,
+        20.5,
         "4. User Review & Score",
-        "• User checks all 8 quotes\n  and can edit 0–3 options\n• Explicit confirmation sums\n  confirmed 0–24 PHQ-8 score",
+        "• User checks all 8 quotes\n  and can edit 0–3 options\n• Explicit confirmation sums\n  0–24 PHQ-8 total score",
         "#eef3fa",
         NAVY,
     )
     box(
-        70,
-        31,
-        28,
-        17,
+        71.5,
+        36.5,
+        27.0,
+        20.0,
         "5. Tone–Symptom Note",
         "• Compares session tone\n  with confirmed total\n• Flags Situational Distress\n  or Masked Somatic pattern",
         "#f5f2fa",
         PURPLE,
         title_color="#4b4584",
     )
-    arrow(64.4, 14.5, 69.6, 14.5, col=NAVY)
-    arrow(64.4, 39.5, 69.6, 39.5, col=PURPLE)
-    arrow(84, 24.3, 84, 30.6, col=PURPLE)
+    arrow(66.6, 14.0, 70.8, 14.0, col=NAVY)
+    arrow(66.6, 46.5, 70.8, 46.5, col=PURPLE)
+    arrow(89.0, 25.2, 89.0, 35.8, col=PURPLE)
+
+    # Strict Renderer Pixel-Bounding-Box Verification
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    patch_bbs = []
+    for name, patch, t_title, t_body in box_records:
+        p_bb = patch.get_window_extent(renderer=renderer)
+        tt_bb = t_title.get_window_extent(renderer=renderer)
+        tb_bb = t_body.get_window_extent(renderer=renderer)
+        assert tt_bb.x0 >= p_bb.x0 + 8 and tt_bb.x1 <= p_bb.x1 - 8, (
+            f"Title overflow in {name}"
+        )
+        assert tb_bb.x0 >= p_bb.x0 + 8 and tb_bb.x1 <= p_bb.x1 - 8, (
+            f"Body horizontal overflow in {name}"
+        )
+        assert tb_bb.y0 >= p_bb.y0 + 8 and tt_bb.y1 <= p_bb.y1 - 6, (
+            f"Vertical overflow in {name}"
+        )
+        assert tt_bb.y0 >= tb_bb.y1 + 4, f"Title/body overlap in {name}"
+        patch_bbs.append((name, p_bb))
+
+    fw_bb = fw_text.get_window_extent(renderer=renderer)
+    for name, p_bb in patch_bbs:
+        assert not _bboxes_intersect(fw_bb, p_bb, pad=4.0), (
+            f"Firewall badge overlaps {name}"
+        )
 
     out_path = outdir / "fig1_clean_architecture.png"
-    fig.savefig(out_path, dpi=300, bbox_inches="tight")
+    fig.savefig(out_path, dpi=300)
     plt.close(fig)
     return out_path
 
@@ -1767,10 +1803,9 @@ def _render_clean_fig2(summary_v2: dict, outdir: Path) -> Path:
     e1a = summary_v2["e1"]["e1a_tweeteval"]["test_models"]
     e1b = summary_v2["e1"]["e1b_quadrant_divergence"]["models"]
 
-    fig, (ax_a, ax_b) = plt.subplots(1, 2, figsize=(12.2, 4.7))
-    fig.subplots_adjust(left=0.06, right=0.98, bottom=0.18, top=0.80, wspace=0.24)
+    fig, (ax_a, ax_b) = plt.subplots(1, 2, figsize=(12.4, 4.9))
+    fig.subplots_adjust(left=0.06, right=0.98, bottom=0.18, top=0.78, wspace=0.24)
 
-    # Panel (a): TweetEval (all higher = better)
     models_a = [
         ("majority", "Majority", SLATE),
         ("tfidf_multinomial_nb", "Multinomial NB", TEAL),
@@ -1796,26 +1831,25 @@ def _render_clean_fig2(summary_v2: dict, outdir: Path) -> Path:
                 f"{v:.2f}",
                 ha="center",
                 va="bottom",
-                fontsize=8.0,
+                fontsize=7.8,
                 fontweight="bold",
             )
     ax_a.set_xticks(xa)
-    ax_a.set_xticklabels([lbl for _, lbl in metrics_a], fontsize=9.8)
+    ax_a.set_xticklabels([lbl for _, lbl in metrics_a], fontsize=9.6)
     ax_a.set_ylim(0, 0.74)
-    ax_a.set_ylabel("Score on Held-Out Test Split (Higher = Better ↑)", fontsize=9.8)
+    ax_a.set_ylabel("Score on Held-Out Test Split (Higher = Better ↑)", fontsize=9.6)
     ax_a.set_title(
-        "(a) Public TweetEval Sentiment Benchmark (N = 12,284)", fontsize=10.6, pad=24
+        "(a) Public TweetEval Sentiment Benchmark (N = 12,284)", fontsize=10.4, pad=28
     )
     ax_a.legend(
         loc="lower center",
-        bbox_to_anchor=(0.5, 1.01),
+        bbox_to_anchor=(0.5, 1.015),
         ncol=4,
-        fontsize=8.2,
+        fontsize=8.0,
         frameon=True,
     )
     ax_a.grid(True, axis="y", linestyle=":", alpha=0.5)
 
-    # Panel (b): E1B — ALL ACCURACY (Higher = Better ↑)!
     models_b = [
         ("tfidf_linear_svm", "TweetEval Linear SVM", STEEL),
         ("live_gpt_terra", "Connected LLM (Terra)", NAVY),
@@ -1857,42 +1891,42 @@ def _render_clean_fig2(summary_v2: dict, outdir: Path) -> Path:
                 f"{v * 100:.0f}%",
                 ha="center",
                 va="bottom",
-                fontsize=7.8,
+                fontsize=7.6,
                 fontweight="bold",
             )
     ax_b.text(
-        2.5,
-        0.82,
-        "Using 'Negative => PHQ-8 ≥ 10'\nCollapses to 0%–8% Accuracy!",
+        2.62,
+        0.95,
+        "Better Sentiment → Worse Proxy:\n100% Sentiment Gets 0% Here!",
         ha="center",
         va="center",
-        fontsize=8.6,
+        fontsize=8.2,
         fontweight="bold",
         color="#8c3b00",
-        bbox={"boxstyle": "round,pad=0.28", "facecolor": "white", "edgecolor": ORANGE},
+        bbox={"boxstyle": "round,pad=0.25", "facecolor": "white", "edgecolor": ORANGE},
     )
     ax_b.set_xlim(-0.55, 3.55)
     ax_b.set_xticks(xb)
-    ax_b.set_xticklabels([lbl for lbl, _ in cats_b], fontsize=9.2)
-    ax_b.set_ylim(0, 1.16)
+    ax_b.set_xticklabels([lbl for lbl, _ in cats_b], fontsize=9.0)
+    ax_b.set_ylim(0, 1.18)
     ax_b.set_yticks([0.0, 0.25, 0.50, 0.75, 1.00])
     ax_b.set_yticklabels(["0%", "25%", "50%", "75%", "100%"])
-    ax_b.set_ylabel("Accuracy (Higher = Better ↑)", fontsize=9.8)
+    ax_b.set_ylabel("Accuracy (Higher = Better ↑)", fontsize=9.6)
     ax_b.set_title(
-        "(b) Controlled Bilingual Stress Test (N = 48)", fontsize=10.6, pad=24
+        "(b) Controlled Bilingual Stress Test (N = 48)", fontsize=10.4, pad=28
     )
     ax_b.legend(
         loc="lower center",
-        bbox_to_anchor=(0.5, 1.01),
+        bbox_to_anchor=(0.5, 1.015),
         ncol=3,
-        fontsize=8.0,
+        fontsize=7.9,
         frameon=True,
     )
     ax_b.grid(True, axis="y", linestyle=":", alpha=0.5)
 
     fig.suptitle(
         "Experiment 1: Public Sentiment Baselines and Why Sentiment Alone Fails as a Screening Rule",
-        fontsize=12.0,
+        fontsize=11.8,
         fontweight="bold",
         color=NAVY,
         y=0.96,
@@ -1903,178 +1937,16 @@ def _render_clean_fig2(summary_v2: dict, outdir: Path) -> Path:
     return out_path
 
 
-def _render_clean_fig4_walkthrough(outdir: Path) -> Path:
-    """Four-stage visual walkthrough of the Bilingual Chatbot UI (Input -> Follow-Up -> Review -> Result)."""
-    fig, axes = plt.subplots(2, 2, figsize=(11.8, 5.8))
-    fig.subplots_adjust(
-        left=0.03, right=0.97, bottom=0.04, top=0.89, wspace=0.08, hspace=0.14
-    )
-    fig.suptitle(
-        "Four-Stage Chatbot Screening Walkthrough (Scenario 2: Matter-of-Fact Somatic Case)",
-        fontsize=12.4,
-        fontweight="bold",
-        color=NAVY,
-        y=0.96,
-    )
-
-    stages = [
-        (
-            "Stage 1: Natural Multi-Symptom Input",
-            STEEL,
-            "#f4f8fc",
-            [
-                (
-                    "Assistant:",
-                    "Over the past two weeks, how have your sleep, energy, and daily focus been?",
-                ),
-                (
-                    "User:",
-                    '"Fragmented sleep under 4 hours on 12 nights, low energy on 13 days, reduced appetite on 9 days, focus trouble on 8 days, and restlessness was just occasionally."',
-                ),
-                (
-                    "System State:",
-                    "• 7 items linked to exact quotes  |  • Item 8 ('occasionally') -> Unresolved",
-                ),
-            ],
-        ),
-        (
-            "Stage 2: Selective Abstention & Clarification",
-            TEAL,
-            "#f1faf7",
-            [
-                (
-                    "Assistant:",
-                    '"Thank you for sharing those clear counts. For feeling fidgety or restless, roughly how many days in the past two weeks did that happen?"',
-                ),
-                (
-                    "User:",
-                    '"To clarify that last restlessness item for the past two weeks: it was 0 days."',
-                ),
-                (
-                    "System State:",
-                    "• Item 8 updated to 0 ('Not at all') with quote \"0 days\"  |  • 8/8 Ready",
-                ),
-            ],
-        ),
-        (
-            "Stage 3: Quote-Backed Batch Review & Edit",
-            NAVY,
-            "#f2f5fa",
-            [
-                ("Review Table (All 8 Items Editable Before Scoring):", ""),
-                (
-                    "• Sleep trouble: Nearly every day (3)",
-                    'Quote: "12 nights"   [Dropdown: 0..3]',
-                ),
-                (
-                    "• Tired / low energy: Nearly every day (3)",
-                    'Quote: "13 days"     [Dropdown: 0..3]',
-                ),
-                (
-                    "• Restlessness: Not at all (0)",
-                    'Quote: "0 days"      [☑ I confirm all 8 answers]',
-                ),
-            ],
-        ),
-        (
-            "Stage 4: Confirmed PHQ-8 Total & Tone Note",
-            PURPLE,
-            "#f6f3fb",
-            [
-                (
-                    "Confirmed PHQ-8 Questionnaire Total:",
-                    "11 / 24   (Moderate range: 10–14)",
-                ),
-                (
-                    "Session Affect Trace (Sidebar):",
-                    "0 Negative  ·  4 Neutral  ·  0 Positive  (Not used in score)",
-                ),
-                (
-                    "Dual-Channel Observation Note:",
-                    "Masked / Matter-of-Fact Somatic Pattern — calm neutral tone alongside elevated 2-week symptom burden (>= 10).",
-                ),
-            ],
-        ),
-    ]
-
-    for ax, (title, border_col, bg_col, lines) in zip(axes.flat, stages):
-        ax.set_xlim(0, 100)
-        ax.set_ylim(0, 50)
-        ax.axis("off")
-        card = FancyBboxPatch(
-            (1.5, 1.5),
-            97,
-            47,
-            boxstyle="round,pad=0.5,rounding_size=1.8",
-            facecolor=bg_col,
-            edgecolor=border_col,
-            linewidth=1.8,
-        )
-        ax.add_patch(card)
-        hdr = FancyBboxPatch(
-            (1.5, 39.5),
-            97,
-            9.0,
-            boxstyle="round,pad=0.3,rounding_size=1.5",
-            facecolor=border_col,
-            edgecolor=border_col,
-            linewidth=1.0,
-        )
-        ax.add_patch(hdr)
-        ax.text(
-            50,
-            44.0,
-            title,
-            ha="center",
-            va="center",
-            fontsize=10.5,
-            fontweight="bold",
-            color="white",
-        )
-
-        y_cursor = 34.5
-        for prefix, body in lines:
-            ax.text(
-                5.0,
-                y_cursor,
-                prefix,
-                ha="left",
-                va="top",
-                fontsize=9.0,
-                fontweight="bold",
-                color=NAVY,
-            )
-            if body:
-                ax.text(
-                    5.0,
-                    y_cursor - 4.2,
-                    body,
-                    ha="left",
-                    va="top",
-                    fontsize=8.6,
-                    color="#222222",
-                    wrap=True,
-                )
-                y_cursor -= 11.2
-            else:
-                y_cursor -= 5.5
-
-    out_path = outdir / "fig4_chatbot_4stage_flow.png"
-    fig.savefig(out_path, dpi=300)
-    plt.close(fig)
-    return out_path
-
-
 def generate_v2_figures(summary_v2: dict, outdir: Path) -> list[Path]:
-    """Render all 4 reader-friendly figures for the polished Undergraduate S1 Report."""
+    """Render pixel-verified Figures 1–3 (Figure 4 is captured live from Streamlit)."""
     outdir = Path(outdir)
     outdir.mkdir(parents=True, exist_ok=True)
     with plt.rc_context(RC_STYLE):
         p1 = _render_clean_fig1(outdir)
         p2 = _render_clean_fig2(summary_v2, outdir)
 
-        fig, (ax_a, ax_b) = plt.subplots(1, 2, figsize=(12.2, 4.6))
-        fig.subplots_adjust(left=0.07, right=0.98, bottom=0.19, top=0.81, wspace=0.25)
+        fig, (ax_a, ax_b) = plt.subplots(1, 2, figsize=(12.4, 4.9))
+        fig.subplots_adjust(left=0.06, right=0.98, bottom=0.18, top=0.79, wspace=0.25)
 
         e2 = summary_v2["e2"]
         curve = e2["ml_risk_coverage_curve"]
@@ -2086,7 +1958,7 @@ def generate_v2_figures(summary_v2: dict, outdir: Path) -> list[Path]:
             color=STEEL,
             linewidth=2.2,
             marker="o",
-            markersize=4.8,
+            markersize=4.6,
             label="TF-IDF + Calibrated LR (threshold sweep)",
         )
         ax_a.scatter(
@@ -2096,44 +1968,71 @@ def generate_v2_figures(summary_v2: dict, outdir: Path) -> list[Path]:
             marker="*",
             color=TEAL,
             zorder=5,
-            label="Ideal Point (50% coverage, 0% risk)",
+            label="Ideal Target (50% cov, 0% risk)",
         )
 
         m80 = e2["methods"]
-        pts = [
-            ("Naive Keyword", m80["naive_keyword_heuristic"], ORANGE, "D", (-22, 11)),
+        # Carefully separated data-space label positions verified against renderer bboxes!
+        callouts_spec = [
             (
                 "Forced LR (τ=0)",
                 m80["tfidf_calibrated_lr_forced"],
                 PURPLE,
                 "s",
-                (-76, -20),
+                (0.68, 0.78),
             ),
-            ("Connected Chatbot", m80["live_dual_channel_chatbot"], NAVY, "P", (8, 12)),
+            (
+                "Naive Keyword",
+                m80["naive_keyword_heuristic"],
+                ORANGE,
+                "D",
+                (0.80, 0.28),
+            ),
+            (
+                "Connected Chatbot",
+                m80["live_dual_channel_chatbot"],
+                NAVY,
+                "P",
+                (0.76, 0.06),
+            ),
         ]
-        for lbl, md, col, mk, ofs in pts:
+        placed_callouts = []
+        for lbl, md, col, mk, (tx, ty) in callouts_spec:
             cx, cy = float(md["coverage"]), float(md["selective_risk"])
             ax_a.scatter([cx], [cy], s=80, color=col, marker=mk, zorder=6)
-            ax_a.annotate(
+            ann = ax_a.annotate(
                 f"{lbl}\n({cx * 100:.0f}% cov, {cy * 100:.0f}% risk)",
                 xy=(cx, cy),
-                xytext=ofs,
-                textcoords="offset points",
-                fontsize=8.0,
+                xytext=(tx, ty),
+                textcoords="data",
+                ha="center",
+                va="center",
+                fontsize=7.8,
                 fontweight="bold",
                 color=col,
+                arrowprops={
+                    "arrowstyle": "->",
+                    "color": col,
+                    "lw": 1.1,
+                    "shrinkA": 4,
+                    "shrinkB": 5,
+                },
                 bbox={
-                    "boxstyle": "round,pad=0.22",
+                    "boxstyle": "round,pad=0.24",
                     "facecolor": "white",
                     "edgecolor": col,
-                    "alpha": 0.94,
+                    "alpha": 0.96,
                 },
             )
-        ax_a.text(
+            placed_callouts.append((lbl, ann))
+
+        note_box = ax_a.text(
             0.03,
-            0.22,
-            "Note: Offline Rule Baseline accepted\n0/80 free-form sentences (Risk = N/A)",
-            fontsize=8.0,
+            0.13,
+            "Offline Rule Baseline:\n0/80 accepted (Risk = N/A)",
+            ha="left",
+            va="center",
+            fontsize=7.7,
             color=SLATE,
             bbox={
                 "boxstyle": "round,pad=0.24",
@@ -2141,14 +2040,22 @@ def generate_v2_figures(summary_v2: dict, outdir: Path) -> list[Path]:
                 "edgecolor": "#cccccc",
             },
         )
-        ax_a.set_xlim(-0.04, 1.08)
-        ax_a.set_ylim(-0.06, 0.85)
-        ax_a.set_xlabel("Coverage — Accepted Share of 80 Utterances", fontsize=9.6)
-        ax_a.set_ylabel("Selective Risk — Wrong Share Among Accepted (↓)", fontsize=9.6)
+        placed_callouts.append(("RuleNote", note_box))
+
+        ax_a.set_xlim(-0.04, 1.06)
+        ax_a.set_ylim(-0.08, 0.92)
+        ax_a.set_xlabel("Coverage — Accepted Share of 80 Utterances", fontsize=9.5)
+        ax_a.set_ylabel("Selective Risk — Wrong Share Among Accepted (↓)", fontsize=9.5)
         ax_a.set_title(
-            "(a) Risk–Coverage Trade-Off on 80 Bilingual Turns", fontsize=10.5, pad=12
+            "(a) Risk–Coverage Trade-Off on 80 Bilingual Turns", fontsize=10.4, pad=26
         )
-        ax_a.legend(loc="upper left", fontsize=8.0, framealpha=0.95)
+        leg_a = ax_a.legend(
+            loc="lower center",
+            bbox_to_anchor=(0.5, 1.015),
+            ncol=2,
+            fontsize=7.8,
+            frameon=True,
+        )
         ax_a.grid(True, linestyle=":", alpha=0.5)
 
         labels_b = [
@@ -2179,14 +2086,14 @@ def generate_v2_figures(summary_v2: dict, outdir: Path) -> list[Path]:
             core_vals,
             width=wb,
             color=STEEL,
-            label="Standard Bilingual Set (N=64)",
+            label="Standard Set (N=64)",
         )
         b2 = ax_b.bar(
             xb + wb / 2,
             hard_vals,
             width=wb,
             color=ORANGE,
-            label="HK Code-Switched & Stress Set (N=16)",
+            label="HK Stress Set (N=16)",
         )
         for bars in (b1, b2):
             for rect in bars:
@@ -2197,19 +2104,25 @@ def generate_v2_figures(summary_v2: dict, outdir: Path) -> list[Path]:
                     f"{v * 100:.1f}%",
                     ha="center",
                     va="bottom",
-                    fontsize=7.8,
+                    fontsize=7.5,
                     fontweight="bold",
                 )
         ax_b.set_xticks(xb)
-        ax_b.set_xticklabels(labels_b, fontsize=9.2)
-        ax_b.set_ylim(0.0, 1.18)
+        ax_b.set_xticklabels(labels_b, fontsize=9.0)
+        ax_b.set_ylim(0.0, 1.16)
         ax_b.set_yticks([0.0, 0.25, 0.50, 0.75, 1.00])
         ax_b.set_yticklabels(["0%", "25%", "50%", "75%", "100%"])
-        ax_b.set_ylabel("End-to-End Accuracy (Higher = Better ↑)", fontsize=9.6)
+        ax_b.set_ylabel("End-to-End Accuracy (Higher = Better ↑)", fontsize=9.5)
         ax_b.set_title(
-            "(b) Standard Set vs. HK Code-Switched Stress Set", fontsize=10.5, pad=12
+            "(b) Standard Set vs. HK Code-Switched Stress Set", fontsize=10.4, pad=26
         )
-        ax_b.legend(loc="upper left", fontsize=8.0, framealpha=0.95)
+        ax_b.legend(
+            loc="lower center",
+            bbox_to_anchor=(0.5, 1.015),
+            ncol=2,
+            fontsize=7.9,
+            frameon=True,
+        )
         ax_b.grid(True, axis="y", linestyle=":", alpha=0.5)
 
         fig.suptitle(
@@ -2217,13 +2130,37 @@ def generate_v2_figures(summary_v2: dict, outdir: Path) -> list[Path]:
             fontsize=11.8,
             fontweight="bold",
             color=NAVY,
-            y=0.95,
+            y=0.96,
         )
+
+        # Strict Renderer Pixel-Bounding-Box Verification for Fig 3!
+        fig.canvas.draw()
+        renderer = fig.canvas.get_renderer()
+        ax_a_bb = ax_a.get_window_extent(renderer=renderer)
+        leg_a_bb = leg_a.get_window_extent(renderer=renderer)
+        c_bbs = []
+        for cname, artist in placed_callouts:
+            bb = artist.get_window_extent(renderer=renderer)
+            assert bb.x0 >= ax_a_bb.x0 + 4 and bb.x1 <= ax_a_bb.x1 - 4, (
+                f"{cname} clipped horizontally in Fig 3a"
+            )
+            assert bb.y0 >= ax_a_bb.y0 + 4 and bb.y1 <= ax_a_bb.y1 - 4, (
+                f"{cname} clipped vertically in Fig 3a"
+            )
+            assert not _bboxes_intersect(bb, leg_a_bb, pad=3.0), (
+                f"{cname} overlaps legend"
+            )
+            for prev_name, prev_bb in c_bbs:
+                assert not _bboxes_intersect(bb, prev_bb, pad=6.0), (
+                    f"{cname} overlaps {prev_name} in Fig 3a"
+                )
+            c_bbs.append((cname, bb))
+
         p3 = outdir / "fig3_clean_e2_extraction.png"
         fig.savefig(p3, dpi=300)
         plt.close(fig)
 
-        p4 = _render_clean_fig4_walkthrough(outdir)
+    p4 = outdir / "fig4_live_streamlit_ui.png"
     return [p1, p2, p3, p4]
 
 

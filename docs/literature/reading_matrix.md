@@ -102,6 +102,42 @@ Accessed 26 November 2026. This is a focused narrative review, not a systematic 
 
 **Design consequence:** retain three classes for this semester, keep fine-grained emotion as an optional extension, and explain the distinction between emotion, sentiment and symptom-frequency labels.
 
+## 10 Yang et al 2023
+
+**Towards Interpretable Mental Health Analysis with Large Language Models.** Proceedings of EMNLP 2023, 6056–6077. DOI: https://doi.org/10.18653/v1/2023.emnlp-main.370 . ACL Anthology: https://aclanthology.org/2023.emnlp-main.370/ ; full-text HTML read via https://arxiv.org/html/2304.03347v4 .
+
+**Read:** Abstract, §1 Introduction, §2 Methodology, §3 Experimental Settings, §4.1 Results (Table 1) and limitations.
+
+**Method and evidence:** evaluated LLaMA-7B/13B, InstructGPT-3 and ChatGPT across 11 datasets and 5 mental-health/emotion tasks (including Depression_Reddit, CLPsych15, Dreaddit, T-SID, SAD and CAMS), plus human evaluation of 163 generated explanations. Zero-shot ChatGPT outperformed lightweight RNN/CNN baselines on several tasks and produced readable explanations, yet still trailed domain-finetuned encoders (MentalBERT / MentalRoBERTa; e.g., 82.41 vs. 94.62 F1 on DR and 33.30 vs. 89.01 on T-SID) and exhibited prompt sensitivity and inaccurate reasoning.
+
+**Limit:** evaluates social-media classification posts rather than multi-turn PHQ-8 frequency extraction; readable explanations can still accompany wrong predictions.
+
+**Design consequence:** use the LLM to propose structured, quote-linked symptom candidates and empathetic replies rather than treating zero-shot LLM judgments as autonomous depression diagnoses; require verbatim quote checks and explicit user review.
+
+## 11 Fu et al 2024
+
+**Efficacy of ChatGPT in Cantonese Sentiment Analysis: Comparative Study.** Journal of Medical Internet Research 26, e51069. DOI: https://doi.org/10.2196/51069 . PMID 38289662; PMCID PMC10865189.
+
+**Read:** indexed structured abstract (Background, Objective, Methods, Results and Conclusions) and metadata via Europe PMC REST API; full journal HTML not accessed.
+
+**Method and evidence:** analyzed 6,169 messages from 131 web-based youth counseling sessions in Hong Kong. Reported 3-class Cantonese sentiment accuracy of 92.1% (GPT-3.5) and 95.3% (GPT-4), outperforming a lexicon baseline (37.2%) and traditional machine-learning / SVM / LSTM models (66.0%–70.9%).
+
+**Limit:** structured-abstract appraisal only; moreover, message-level counseling polarity still measures momentary expressed valence rather than two-week PHQ-8 symptom counts.
+
+**Design consequence:** supports using an LLM for Cantonese/bilingual affect sensing where English TF-IDF fails, while keeping affect labels separate from PHQ-8 scoring.
+
+## 12 Jiang et al 2025
+
+**Developing and Utilizing a Large-Scale Cantonese Dataset for Multi-Tasking in Large Language Models.** Findings of EMNLP 2025, 1924–1944. DOI: https://doi.org/10.18653/v1/2025.findings-emnlp.102 . Full-text HTML read via https://arxiv.org/html/2503.03702v1 .
+
+**Read:** Abstract, §1 Introduction, §2 YueData collection/filtering (Tables 1–3) and §2.1.2 / Table 4 benchmark comparison.
+
+**Method and evidence:** documents why Cantonese (85M+ speakers) remains low-resource in NLP due to spoken–written divergence, unique Cantonese characters, English loanwords and frequent Hong Kong Cantonese–English code-switching (e.g., LIHKG and OpenRice), and shows that adapting a compact 7B model (Qwen-2.5-7b -> YueTung-7b) substantially improves Cantonese task performance.
+
+**Limit:** general Cantonese multi-task benchmark rather than clinical or PHQ-8 dialogue data.
+
+**Design consequence:** motivates including realistic Hong Kong Cantonese–English code-switched utterances in our Experiment 2 stress test and informs our Semester 2 plan to evaluate compact 7B local Cantonese-capable open-weight models to reduce API latency.
+
 ## Cross-source synthesis
 
 The evidence supports studying three separate layers: general sentiment classification, interpretation of questionnaire responses, and reliable confirmation/scoring. It does not support combining their metrics into a single “depression accuracy.” We contribute an integration and evaluation baseline, not a novel clinical instrument. The current limitations—language transfer, synthetic diagnostic cases, unvalidated wording and mock crisis handling—follow directly from the mismatch between our evidence and the evidence required for clinical claims.
